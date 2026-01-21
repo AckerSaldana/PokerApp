@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  username         String   @unique
+  passwordHash     String
+  chipBalance      Int      @default(100)
+  lastWeeklyCredit DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  gameSessions      GameSessionParticipant[]
+  transfersSent     ChipTransfer[]           @relation("TransferSender")
+  transfersReceived ChipTransfer[]           @relation("TransferReceiver")
+  refreshTokens     RefreshToken[]
+
+  @@index([username])
+  @@index([chipBalance])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model GameSession {
+  id        String   @id @default(cuid())
+  name      String?
+  date      DateTime
+  notes     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  participants GameSessionParticipant[]
+
+  @@index([date])
+  @@index([isActive])
+}
+
+model GameSessionParticipant {
+  id            String   @id @default(cuid())
+  userId        String
+  gameSessionId String
+  buyIn         Int      @default(0)
+  cashOut       Int      @default(0)
+  netResult     Int      @default(0)
+  joinedAt      DateTime @default(now())
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameSession GameSession @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameSessionId])
+  @@index([userId])
+  @@index([gameSessionId])
+}
+
+model ChipTransfer {
+  id         String         @id @default(cuid())
+  senderId   String
+  receiverId String
+  amount     Int
+  note       String?
+  status     TransferStatus @default(COMPLETED)
+  createdAt  DateTime       @default(now())
+
+  // Relations
+  sender   User @relation("TransferSender", fields: [senderId], references: [id])
+  receiver User @relation("TransferReceiver", fields: [receiverId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}

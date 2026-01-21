@@ -1,0 +1,396 @@
+@import "tailwindcss";
+
+/* Custom CSS Variables */
+:root {
+  /* Premium Emerald Palette */
+  --color-emerald-950: #020617; /* Deepest background (almost black) */
+  --color-emerald-900: #064e3b; /* Rich felt background */
+  --color-emerald-800: #065f46;
+  --color-emerald-600: #059669; /* Primary action */
+  --color-emerald-500: #10b981; /* Highlights */
+  --color-emerald-400: #34d399; /* Glows */
+
+  /* Luxury Gold Accents */
+  --color-gold-900: #451a03;
+  --color-gold-700: #b45309;
+  --color-gold-600: #d97706;
+  --color-gold-500: #f59e0b; /* Base Gold */
+  --color-gold-400: #fbbf24; /* Shine */
+  --color-gold-300: #fcd34d; /* Bright Highlight */
+  --color-gold-100: #fef3c7; /* Pale Gold */
+
+  /* Legacy mapping */
+  --felt-deep: var(--color-emerald-900);
+  --felt-rich: var(--color-emerald-800);
+  --felt-bright: var(--color-emerald-500);
+  --felt-glow: var(--color-emerald-400);
+
+  --gold-deep: var(--color-gold-700);
+  --gold-rich: var(--color-gold-600);
+  --gold-bright: var(--color-gold-500);
+  --gold-shine: var(--color-gold-400);
+  --gold-highlight: var(--color-gold-300);
+
+  /* Functional Colors */
+  --bg-app: var(--color-emerald-950);
+  --bg-surface: rgba(255, 255, 255, 0.03);
+  --bg-surface-elevated: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-gold: rgba(245, 158, 11, 0.2);
+
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-gold: var(--color-gold-400);
+
+  /* Spacing */
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
+  --safe-area-right: env(safe-area-inset-right);
+
+  /* Animation timing */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Dark mode colors (default) */
+:root {
+  --bg-primary: var(--bg-app);
+  --bg-secondary: #0f172a;
+  --bg-card: var(--bg-surface);
+  --bg-elevated: var(--bg-surface-elevated);
+  --border-color: var(--glass-border);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+}
+
+/* Fonts */
+:root {
+  --font-display: "Playfair Display", serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Base styles */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  overscroll-behavior: none;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Safe area padding utilities */
+.pt-safe {
+  padding-top: var(--safe-area-top);
+}
+
+.pb-safe {
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.px-safe {
+  padding-left: var(--safe-area-left);
+  padding-right: var(--safe-area-right);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 2px;
+}
+
+/* Number font feature */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus visible styles */
+:focus-visible {
+  outline: 2px solid var(--color-felt);
+  outline-offset: 2px;
+}
+
+/* Remove input styles on iOS */
+input,
+textarea,
+select {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media screen and (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* ========================================
+   PREMIUM DESIGN UTILITIES
+   ======================================== */
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Glow Effects */
+.glow-emerald {
+  box-shadow:
+    0 0 20px rgba(16, 185, 129, 0.3),
+    0 0 40px rgba(16, 185, 129, 0.1);
+}
+
+.glow-emerald-soft {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+}
+
+.glow-gold {
+  box-shadow:
+    0 0 20px rgba(245, 158, 11, 0.3),
+    0 0 40px rgba(245, 158, 11, 0.1);
+}
+
+.glow-gold-soft {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.15);
+}
+
+/* Text Gradients */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #047857 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-silver {
+  background: linear-gradient(135deg, #e4e4e7 0%, #a1a1aa 50%, #71717a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-bronze {
+  background: linear-gradient(135deg, #fbbf24 0%, #b45309 50%, #78350f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Felt Texture (subtle noise pattern) */
+.felt-texture {
+  position: relative;
+}
+
+.felt-texture::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Shimmer Loading Effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Glow Pulse Animation */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Chip Bounce Animation */
+@keyframes chip-bounce {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-4px) rotate(5deg);
+  }
+}
+
+.animate-chip-bounce {
+  animation: chip-bounce 0.5s ease-out;
+}
+
+/* Float Animation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Slow Spin */
+@keyframes slow-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-slow-spin {
+  animation: slow-spin 60s linear infinite;
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(39, 39, 42, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3f3f46 0%, #27272a 100%);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #52525b 0%, #3f3f46 100%);
+}
+
+/* Card Suit Symbols */
+.suit-spade::before {
+  content: "\2660";
+}
+.suit-heart::before {
+  content: "\2665";
+  color: #ef4444;
+}
+.suit-diamond::before {
+  content: "\2666";
+  color: #ef4444;
+}
+.suit-club::before {
+  content: "\2663";
+}
+
+/* Gradient Borders */
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.3),
+    transparent,
+    rgba(16, 185, 129, 0.1)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

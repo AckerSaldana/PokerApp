@@ -1,0 +1,24 @@
+import { apiClient } from './client';
+import type { User, UserStats, ApiResponse } from '@/lib/types';
+
+export const usersApi = {
+  getAll: async () => {
+    const response = await apiClient.get<ApiResponse<User[]>>('/users');
+    return response.data.data!;
+  },
+
+  getById: async (id: string) => {
+    const response = await apiClient.get<ApiResponse<User>>(`/users/${id}`);
+    return response.data.data!;
+  },
+
+  getStats: async (id: string) => {
+    const response = await apiClient.get<ApiResponse<UserStats>>(`/users/${id}/stats`);
+    return response.data.data!;
+  },
+
+  updateProfile: async (id: string, data: { username?: string }) => {
+    const response = await apiClient.patch<ApiResponse<User>>(`/users/${id}`, data);
+    return response.data.data!;
+  },
+};
