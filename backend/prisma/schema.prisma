@@ -19,6 +19,7 @@ model User {
 
   // Relations
   gameSessions      GameSessionParticipant[]
+  hostedGames       GameSession[]            @relation("GameHost")
   transfersSent     ChipTransfer[]           @relation("TransferSender")
   transfersReceived ChipTransfer[]           @relation("TransferReceiver")
   refreshTokens     RefreshToken[]
@@ -41,6 +42,8 @@ model RefreshToken {
 model GameSession {
   id        String   @id @default(cuid())
   name      String?
+  joinCode  String   @unique
+  hostId    String
   date      DateTime
   notes     String?
   isActive  Boolean  @default(true)
@@ -48,8 +51,11 @@ model GameSession {
   updatedAt DateTime @updatedAt
 
   // Relations
+  host         User                    @relation("GameHost", fields: [hostId], references: [id])
   participants GameSessionParticipant[]
 
+  @@index([joinCode])
+  @@index([hostId])
   @@index([date])
   @@index([isActive])
 }

@@ -38,10 +38,13 @@ export interface Transfer {
 export interface GameSession {
   id: string;
   name?: string;
+  joinCode: string;
+  hostId: string;
   date: string;
   notes?: string;
   isActive: boolean;
   createdAt: string;
+  host: { id: string; username: string };
   participants: GameParticipant[];
 }
 

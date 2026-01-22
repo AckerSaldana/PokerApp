@@ -188,7 +188,7 @@ export function TransferPage() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.6 }}
                       >
-                        {amount} chips to {selectedUser?.username}
+                        ${amount} to {selectedUser?.username}
                       </motion.p>
                     </motion.div>
                   </motion.div>
@@ -260,9 +260,8 @@ export function TransferPage() {
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 >
                   <span className="text-7xl font-display font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] tabular-nums">
-                    {amount}
+                    ${amount}
                   </span>
-                  <span className="text-xl text-[var(--color-gold-400)] ml-2 font-medium">chips</span>
                 </motion.div>
 
                 {/* Custom styled range slider */}

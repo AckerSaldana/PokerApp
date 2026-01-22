@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatChips(amount: number): string {
-  return amount.toLocaleString();
+  return `$${amount.toLocaleString()}`;
 }
 
 export function formatDate(date: Date | string): string {

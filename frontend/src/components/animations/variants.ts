@@ -397,3 +397,272 @@ export const buttonPress = {
     y: 0
   },
 } as any;
+
+// ========================================
+// AWWWARD-WORTHY ANIMATIONS
+// ========================================
+
+// Cinematic reveal for hero sections
+export const cinematicReveal = {
+  initial: {
+    opacity: 0,
+    scale: 1.05,
+    filter: 'blur(20px) brightness(1.5)'
+  },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    filter: 'blur(0px) brightness(1)',
+    transition: {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1] as const,
+    },
+  },
+} as any;
+
+// Magnetic hover effect with 3D tilt
+export const magneticHover = {
+  whileHover: {
+    scale: 1.05,
+    rotateX: 5,
+    rotateY: 5,
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 20
+    }
+  },
+  whileTap: {
+    scale: 0.95
+  }
+} as any;
+
+// Liquid morph for buttons/shapes
+export const liquidMorph = {
+  initial: { borderRadius: '24px' },
+  whileHover: {
+    borderRadius: '16px',
+    scale: 1.03,
+    transition: {
+      type: 'spring',
+      stiffness: 400,
+      damping: 25
+    }
+  },
+  whileTap: {
+    scale: 0.97,
+    borderRadius: '20px'
+  }
+} as any;
+
+// Number slot machine roll animation
+export const numberRoll = {
+  initial: {
+    y: '100%',
+    opacity: 0,
+    rotateX: -90
+  },
+  animate: {
+    y: '0%',
+    opacity: 1,
+    rotateX: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 30,
+    },
+  },
+  exit: {
+    y: '-100%',
+    opacity: 0,
+    rotateX: 90,
+    transition: { duration: 0.2, ease: 'easeIn' }
+  },
+} as any;
+
+// Glow bloom effect for premium elements
+export const glowBloom = {
+  animate: {
+    boxShadow: [
+      '0 0 20px rgba(251, 191, 36, 0.2), 0 0 40px rgba(251, 191, 36, 0.1)',
+      '0 0 40px rgba(251, 191, 36, 0.4), 0 0 80px rgba(251, 191, 36, 0.2)',
+      '0 0 20px rgba(251, 191, 36, 0.2), 0 0 40px rgba(251, 191, 36, 0.1)',
+    ],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    },
+  },
+} as any;
+
+// Gentle float animation
+export const floatAnimation = {
+  animate: {
+    y: [0, -15, 0],
+    transition: {
+      duration: 4,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    },
+  },
+} as any;
+
+// 3D card tilt on hover
+export const card3DTilt = {
+  whileHover: {
+    rotateX: -5,
+    rotateY: 10,
+    scale: 1.02,
+    z: 50,
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 20
+    }
+  },
+  whileTap: {
+    scale: 0.98,
+    rotateX: 0,
+    rotateY: 0
+  }
+} as any;
+
+// Progress ring fill animation
+export const progressRingFill = (percentage: number, delay: number = 0) => ({
+  initial: {
+    strokeDashoffset: 283 // circumference of circle with r=45
+  },
+  animate: {
+    strokeDashoffset: 283 - (283 * percentage) / 100,
+    transition: {
+      duration: 1.2,
+      delay,
+      ease: [0.16, 1, 0.3, 1] as const,
+    },
+  },
+});
+
+// Morphing nav indicator
+export const morphIndicator = {
+  layout: true,
+  transition: {
+    type: 'spring',
+    stiffness: 500,
+    damping: 35
+  }
+} as any;
+
+// Icon bounce on active
+export const iconBounce = {
+  initial: { scale: 1, rotate: 0 },
+  animate: {
+    scale: [1, 1.2, 1],
+    rotate: [0, -10, 10, 0],
+    transition: {
+      duration: 0.4,
+      ease: 'easeOut'
+    }
+  }
+} as any;
+
+// Stagger with 3D depth cascade
+export const stagger3D = {
+  initial: {},
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+} as any;
+
+export const stagger3DItem = {
+  initial: {
+    opacity: 0,
+    y: 40,
+    z: -100,
+    rotateX: 45,
+    scale: 0.9
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    z: 0,
+    rotateX: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 200,
+      damping: 20,
+    },
+  },
+} as any;
+
+// Particle spawn animation
+export const particleSpawn = (index: number) => ({
+  initial: {
+    opacity: 0,
+    scale: 0,
+    y: 0
+  },
+  animate: {
+    opacity: [0, 1, 1, 0],
+    scale: [0, 1, 0.8, 0],
+    y: [0, -50, -100, -150],
+    x: [0, (index % 2 === 0 ? 1 : -1) * (10 + Math.random() * 20), (index % 2 === 0 ? -1 : 1) * 15, 0],
+    transition: {
+      duration: 4 + Math.random() * 2,
+      delay: index * 0.3,
+      repeat: Infinity,
+      ease: 'easeOut'
+    }
+  }
+});
+
+// Shimmer text effect
+export const shimmerText = {
+  animate: {
+    backgroundPosition: ['200% 0', '-200% 0'],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: 'linear'
+    }
+  }
+} as any;
+
+// Premium button hover
+export const premiumButtonHover = {
+  whileHover: {
+    scale: 1.03,
+    y: -2,
+    boxShadow: '0 10px 40px rgba(251, 191, 36, 0.3)',
+    transition: {
+      type: 'spring',
+      stiffness: 400,
+      damping: 20
+    }
+  },
+  whileTap: {
+    scale: 0.97,
+    y: 0,
+    boxShadow: '0 5px 20px rgba(251, 191, 36, 0.2)'
+  }
+} as any;
+
+// Ripple effect origin
+export const rippleEffect = {
+  initial: {
+    scale: 0,
+    opacity: 0.5
+  },
+  animate: {
+    scale: 4,
+    opacity: 0,
+    transition: {
+      duration: 0.6,
+      ease: 'easeOut'
+    }
+  }
+} as any;

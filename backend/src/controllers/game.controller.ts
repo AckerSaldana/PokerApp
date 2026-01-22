@@ -3,9 +3,9 @@ import { gameService } from '../services/game.service';
 import { apiResponse } from '../utils/response';
 import { AuthRequest } from '../types';
 
-export const createGame = async (req: Request, res: Response, next: NextFunction) => {
+export const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const game = await gameService.createGame(req.body);
+    const game = await gameService.createGame(req.user!.userId, req.body);
     apiResponse.success(res, game, 'Game created', 201);
   } catch (error) {
     next(error);
@@ -32,6 +32,24 @@ export const getGameById = async (req: Request<{ id: string }>, res: Response, n
   }
 };
 
+export const getActiveGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const game = await gameService.getActiveGame(req.user!.userId);
+    apiResponse.success(res, game);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getGameByCode = async (req: Request<{ code: string }>, res: Response, next: NextFunction) => {
+  try {
+    const game = await gameService.getGameByCode(req.params.code);
+    apiResponse.success(res, game);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateGame = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const game = await gameService.updateGame(req.params.id, req.body);
@@ -50,14 +68,27 @@ export const deleteGame = async (req: Request<{ id: string }>, res: Response, ne
   }
 };
 
-export const joinGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const joinGameByCode = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const participant = await gameService.joinGame(
+    const game = await gameService.joinGameByCode(
+      req.params.code as string,
+      req.user!.userId,
+      req.body.buyIn || 0
+    );
+    apiResponse.success(res, game, 'Joined game', 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const rebuy = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const game = await gameService.rebuy(
       req.params.id as string,
       req.user!.userId,
-      req.body.buyIn
+      req.body.amount
     );
-    apiResponse.success(res, participant, 'Joined game', 201);
+    apiResponse.success(res, game, 'Rebuy successful');
   } catch (error) {
     next(error);
   }
@@ -72,18 +103,13 @@ export const leaveGame = async (req: AuthRequest, res: Response, next: NextFunct
   }
 };
 
-export const updateResults = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+export const closeGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const game = await gameService.updateResults(req.params.id, req.body.participants);
-    apiResponse.success(res, game);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const closeGame = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
-  try {
-    const game = await gameService.closeGame(req.params.id);
+    const game = await gameService.closeGame(
+      req.params.id as string,
+      req.user!.userId,
+      req.body.results
+    );
     apiResponse.success(res, game, 'Game closed');
   } catch (error) {
     next(error);

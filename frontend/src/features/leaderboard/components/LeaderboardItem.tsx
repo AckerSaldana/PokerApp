@@ -3,60 +3,42 @@ import { Avatar } from '@/components/ui/Avatar';
 import { formatChips } from '@/lib/utils';
 import type { LeaderboardEntry } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { staggerDepthItem } from '@/components/animations/variants';
+import { staggerItem } from '@/components/animations/variants';
 
 interface LeaderboardItemProps {
   player: LeaderboardEntry;
   index: number;
 }
 
-export function LeaderboardItem({ player, index }: LeaderboardItemProps) {
-  const isTopTen = player.rank <= 10;
+export function LeaderboardItem({ player }: LeaderboardItemProps) {
   const positive = player.totalWinnings >= 0;
 
   return (
     <motion.div
       className={cn(
-        'relative overflow-hidden flex items-center gap-4 p-4',
-        'bg-gradient-to-r from-zinc-900/80 to-zinc-900/60',
-        'backdrop-blur-sm rounded-2xl',
-        'border border-zinc-800/50',
-        'hover:border-zinc-700/50',
-        'transition-all duration-300 group'
+        'relative flex items-center gap-4 p-4',
+        'bg-white/5 rounded-xl',
+        'border border-white/10',
+        'transition-colors duration-200'
       )}
-      variants={staggerDepthItem}
-      whileHover={{ x: 4, backgroundColor: 'rgba(39, 39, 42, 0.5)' }}
-      whileTap={{ scale: 0.98 }}
+      variants={staggerItem}
+      whileHover={{ scale: 1.01, borderColor: 'rgba(255, 255, 255, 0.15)' }}
+      transition={{ duration: 0.2 }}
     >
-      {/* Left accent bar for top 10 */}
-      {isTopTen && (
-        <div className={cn(
-          'absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl',
-          positive
-            ? 'bg-gradient-to-b from-emerald-500 to-emerald-600'
-            : 'bg-gradient-to-b from-red-500 to-red-600',
-          'opacity-50 group-hover:opacity-80 transition-opacity'
-        )} />
-      )}
-
       {/* Rank badge */}
-      <motion.div
+      <div
         className={cn(
-          'w-12 h-12 rounded-xl flex items-center justify-center font-bold',
-          'bg-zinc-800/80 text-zinc-400',
-          'border border-zinc-700/50'
+          'w-10 h-10 rounded-lg flex items-center justify-center font-bold',
+          'bg-zinc-800/80 text-zinc-400'
         )}
-        whileHover={{ scale: 1.1 }}
-        transition={{ type: 'spring', stiffness: 400 }}
       >
-        <span className="text-lg">{player.rank}</span>
-      </motion.div>
+        <span className="text-sm">{player.rank}</span>
+      </div>
 
-      {/* Avatar with ring */}
+      {/* Avatar */}
       <Avatar
         name={player.username}
         size="md"
-        className="ring-2 ring-zinc-700/50 ring-offset-2 ring-offset-zinc-900"
       />
 
       {/* Player info */}
@@ -69,18 +51,14 @@ export function LeaderboardItem({ player, index }: LeaderboardItemProps) {
 
       {/* Winnings */}
       <div className="text-right">
-        <motion.p
+        <p
           className={cn(
             'font-bold text-lg tabular-nums',
             positive ? 'text-emerald-400' : 'text-red-400'
           )}
-          initial={{ x: 10, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: index * 0.05 }}
         >
           {positive ? '+' : ''}{formatChips(player.totalWinnings)}
-        </motion.p>
-        <p className="text-xs text-zinc-500">chips</p>
+        </p>
       </div>
     </motion.div>
   );

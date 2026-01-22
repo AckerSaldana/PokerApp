@@ -7,7 +7,7 @@ import { LeaderboardItem } from '../components/LeaderboardItem';
 import { leaderboardApi } from '@/services/api/leaderboard';
 import { SkeletonListItem } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
-import { pageTransition, staggerContainer, podiumReveal } from '@/components/animations/variants';
+import { pageTransition, staggerContainer } from '@/components/animations/variants';
 import { cn, formatChips } from '@/lib/utils';
 import type { LeaderboardEntry } from '@/lib/types';
 
@@ -42,20 +42,15 @@ function Podium({ players }: { players: LeaderboardEntry[] }) {
           <motion.div
             key={player.userId}
             className={cn('flex flex-col items-center', isFirst && '-mt-8')}
-            variants={podiumReveal}
-            initial="initial"
-            animate="animate"
-            transition={{ delay }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay, duration: 0.3, ease: 'easeOut' }}
           >
             {/* Crown for first place */}
             {isFirst && (
-              <motion.div
-                className="mb-2"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              >
+              <div className="mb-2">
                 <Crown className="w-8 h-8 text-amber-400" />
-              </motion.div>
+              </div>
             )}
 
             {/* Avatar with ring */}
@@ -64,7 +59,7 @@ function Podium({ players }: { players: LeaderboardEntry[] }) {
                 'rounded-full ring-4',
                 ringColor,
                 isFirst ? 'w-20 h-20' : 'w-16 h-16',
-                'overflow-hidden shadow-xl'
+                'overflow-hidden'
               )}>
                 <Avatar
                   name={player.username}
@@ -79,7 +74,7 @@ function Podium({ players }: { players: LeaderboardEntry[] }) {
                 isFirst ? 'w-8 h-8' : 'w-6 h-6',
                 `bg-gradient-to-br ${bgGradient}`,
                 'rounded-full flex items-center justify-center',
-                'font-bold shadow-lg',
+                'font-bold',
                 isFirst ? 'text-amber-900 text-sm' : 'text-white text-xs'
               )}>
                 {position}
@@ -96,8 +91,7 @@ function Podium({ players }: { players: LeaderboardEntry[] }) {
               height,
               'w-24 rounded-t-xl',
               `bg-gradient-to-t ${bgGradient}`,
-              'flex items-end justify-center pb-2',
-              isFirst && 'shadow-lg shadow-amber-500/30'
+              'flex items-end justify-center pb-2'
             )}>
               <span className={cn(
                 'font-bold tabular-nums',

@@ -137,7 +137,6 @@ export function HistoryPage() {
                         >
                           {isSent ? '-' : '+'}{formatChips(item.amount)}
                         </motion.p>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wider">chips</p>
                       </div>
                     </div>
                   </Card>
