@@ -14,6 +14,7 @@ model User {
   passwordHash     String
   chipBalance      Int      @default(100)
   lastWeeklyCredit DateTime @default(now())
+  avatarData       String?  @db.Text
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

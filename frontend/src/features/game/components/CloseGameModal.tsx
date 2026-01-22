@@ -58,7 +58,7 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
           />
 
           {/* Modal */}
@@ -66,9 +66,9 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] overflow-y-auto bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
+            className="fixed bottom-0 left-0 right-0 z-[60] max-h-[85vh] overflow-y-auto bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
           >
-            <div className="p-6">
+            <div className="p-6 pb-28">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-white">End Game</h2>

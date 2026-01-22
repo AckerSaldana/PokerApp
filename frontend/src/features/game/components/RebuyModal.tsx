@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Coins } from 'lucide-react';
 import { cn, formatChips } from '@/lib/utils';
+import { ChipStack3D } from './ChipStack3D';
 
 interface RebuyModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export function RebuyModal({ isOpen, onClose, onConfirm, balance, isPending }: R
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
           />
 
           {/* Modal */}
@@ -40,10 +41,10 @@ export function RebuyModal({ isOpen, onClose, onConfirm, balance, isPending }: R
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-0 left-0 right-0 z-50 p-6 bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
+            className="fixed bottom-0 left-0 right-0 z-[60] p-6 pb-28 bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">Rebuy</h2>
               <button
                 onClick={onClose}
@@ -52,6 +53,9 @@ export function RebuyModal({ isOpen, onClose, onConfirm, balance, isPending }: R
                 <X className="w-5 h-5 text-zinc-400" />
               </button>
             </div>
+
+            {/* Chip Stack Visualization */}
+            <ChipStack3D amount={amount} className="mb-4" />
 
             {/* Balance */}
             <div className="flex items-center justify-between mb-4 text-sm">

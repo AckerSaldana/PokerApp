@@ -17,7 +17,7 @@ export const usersApi = {
     return response.data.data!;
   },
 
-  updateProfile: async (id: string, data: { username?: string }) => {
+  updateProfile: async (id: string, data: { username?: string; avatarData?: string | null }) => {
     const response = await apiClient.patch<ApiResponse<User>>(`/users/${id}`, data);
     return response.data.data!;
   },

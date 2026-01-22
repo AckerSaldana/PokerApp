@@ -418,7 +418,8 @@ export class GameService {
       }),
     ]);
 
-    return { games: participations, total, page, limit };
+    const games = participations.map((p) => p.gameSession);
+    return { games, total, page, limit };
   }
 }
 

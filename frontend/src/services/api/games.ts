@@ -53,9 +53,9 @@ export const gamesApi = {
   },
 
   getMyGames: async (page = 1, limit = 20) => {
-    const response = await apiClient.get<ApiResponse<{ games: GameSession[] }>>('/games/my-games', {
+    const response = await apiClient.get<ApiResponse<GameSession[]>>('/games/my-games', {
       params: { page, limit },
     });
-    return response.data.data!;
+    return { games: response.data.data! };
   },
 };

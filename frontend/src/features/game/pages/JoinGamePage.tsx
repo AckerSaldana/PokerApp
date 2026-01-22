@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Coins, AlertCircle } from 'lucide-react';
 import { gamesApi } from '@/services/api/games';
-import { usersApi } from '@/services/api/users';
+import { balanceApi } from '@/services/api/balance';
 import { useAuthStore } from '@/stores/authStore';
 import { pageTransition } from '@/components/animations/variants';
 import { cn, formatChips } from '@/lib/utils';
@@ -22,12 +22,11 @@ export function JoinGamePage() {
 
   // Get user balance
   const { data: balanceData } = useQuery({
-    queryKey: ['balance', user?.id],
-    queryFn: () => usersApi.getBalance(user!.id),
-    enabled: !!user?.id,
+    queryKey: ['balance'],
+    queryFn: () => balanceApi.getBalance(),
   });
 
-  const balance = balanceData?.balance || 0;
+  const balance = balanceData?.balance ?? 0;
 
   // Fetch game preview when code is complete
   const { data: gamePreview, isLoading: loadingPreview, error: previewError } = useQuery({

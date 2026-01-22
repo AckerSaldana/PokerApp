@@ -3,6 +3,7 @@ export interface User {
   email: string;
   username: string;
   chipBalance: number;
+  avatarData?: string | null;
   lastWeeklyCredit?: string;
   createdAt: string;
 }

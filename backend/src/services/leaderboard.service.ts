@@ -68,22 +68,24 @@ export class LeaderboardService {
 
     const ranked = users
       .map((user) => {
-        const weeklyWinnings = user.gameSessions.reduce(
+        const totalWinnings = user.gameSessions.reduce(
           (sum, session) => sum + session.netResult,
           0
         );
-        const gamesThisWeek = user.gameSessions.length;
+        const gamesPlayed = user.gameSessions.length;
 
         return {
           userId: user.id,
           username: user.username,
           chipBalance: user.chipBalance,
-          weeklyWinnings,
-          gamesThisWeek,
+          totalWinnings,
+          gamesPlayed,
+          wins: user.gameSessions.filter((s) => s.netResult > 0).length,
+          winRate: gamesPlayed > 0 ? user.gameSessions.filter((s) => s.netResult > 0).length / gamesPlayed : 0,
         };
       })
-      .filter((u) => u.gamesThisWeek > 0)
-      .sort((a, b) => b.weeklyWinnings - a.weeklyWinnings)
+      .filter((u) => u.gamesPlayed > 0)
+      .sort((a, b) => b.totalWinnings - a.totalWinnings)
       .map((user, index) => ({ rank: index + 1, ...user }));
 
     return {
@@ -115,22 +117,24 @@ export class LeaderboardService {
 
     const ranked = users
       .map((user) => {
-        const monthlyWinnings = user.gameSessions.reduce(
+        const totalWinnings = user.gameSessions.reduce(
           (sum, session) => sum + session.netResult,
           0
         );
-        const gamesThisMonth = user.gameSessions.length;
+        const gamesPlayed = user.gameSessions.length;
 
         return {
           userId: user.id,
           username: user.username,
           chipBalance: user.chipBalance,
-          monthlyWinnings,
-          gamesThisMonth,
+          totalWinnings,
+          gamesPlayed,
+          wins: user.gameSessions.filter((s) => s.netResult > 0).length,
+          winRate: gamesPlayed > 0 ? user.gameSessions.filter((s) => s.netResult > 0).length / gamesPlayed : 0,
         };
       })
-      .filter((u) => u.gamesThisMonth > 0)
-      .sort((a, b) => b.monthlyWinnings - a.monthlyWinnings)
+      .filter((u) => u.gamesPlayed > 0)
+      .sort((a, b) => b.totalWinnings - a.totalWinnings)
       .map((user, index) => ({ rank: index + 1, ...user }));
 
     return {

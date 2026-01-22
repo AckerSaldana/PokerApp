@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { LogOut, TrendingUp, TrendingDown, Gamepad2, Send, Download, CalendarDays } from 'lucide-react';
+import { LogOut, TrendingUp, TrendingDown, Gamepad2, Send, Download, CalendarDays, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Avatar } from '@/components/ui/Avatar';
@@ -9,10 +10,12 @@ import { useAuthStore } from '@/stores/authStore';
 import { usersApi } from '@/services/api/users';
 import { formatChips, formatDate, cn } from '@/lib/utils';
 import { pageTransition, staggerContainer, staggerItem } from '@/components/animations/variants';
+import { EditProfileSheet } from '../components/EditProfileSheet';
 
 export function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const [showEditSheet, setShowEditSheet] = useState(false);
 
   const { data: stats } = useQuery({
     queryKey: ['userStats', user?.id],
@@ -95,13 +98,22 @@ export function ProfilePage() {
           transition={{ duration: 0.3 }}
         >
           <div className="flex items-center gap-5">
-            <Avatar
-              name={user?.username || 'U'}
-              size="xl"
-              className="w-16 h-16 text-xl"
-            />
+            <div className="relative">
+              <Avatar
+                src={user?.avatarData || undefined}
+                name={user?.username || 'U'}
+                size="xl"
+                className="w-16 h-16 text-xl"
+              />
+              <button
+                onClick={() => setShowEditSheet(true)}
+                className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-lg"
+              >
+                <Pencil className="w-3 h-3 text-white" />
+              </button>
+            </div>
 
-            <div>
+            <div className="flex-1">
               <h2 className="text-xl font-bold text-white">{user?.username}</h2>
               <p className="text-zinc-400 text-sm">{user?.email}</p>
               <div className="flex items-center gap-2 mt-1.5">
@@ -203,6 +215,15 @@ export function ProfilePage() {
           </Button>
         </motion.div>
       </div>
+
+      {/* Edit Profile Sheet */}
+      {user && (
+        <EditProfileSheet
+          isOpen={showEditSheet}
+          onClose={() => setShowEditSheet(false)}
+          user={user}
+        />
+      )}
     </motion.div>
   );
 }

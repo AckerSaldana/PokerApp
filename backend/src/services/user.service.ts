@@ -8,6 +8,7 @@ export class UserService {
         id: true,
         username: true,
         chipBalance: true,
+        avatarData: true,
         createdAt: true,
       },
       orderBy: { username: 'asc' },
@@ -21,6 +22,7 @@ export class UserService {
         id: true,
         username: true,
         chipBalance: true,
+        avatarData: true,
         createdAt: true,
       },
     });
@@ -39,6 +41,7 @@ export class UserService {
         id: true,
         username: true,
         chipBalance: true,
+        avatarData: true,
         createdAt: true,
         gameSessions: {
           select: {
@@ -98,6 +101,7 @@ export class UserService {
         id: user.id,
         username: user.username,
         chipBalance: user.chipBalance,
+        avatarData: user.avatarData,
         createdAt: user.createdAt,
       },
       gameStats: {
@@ -110,7 +114,7 @@ export class UserService {
     };
   }
 
-  async updateProfile(userId: string, data: { username?: string }) {
+  async updateProfile(userId: string, data: { username?: string; avatarData?: string | null }) {
     if (data.username) {
       const existing = await prisma.user.findFirst({
         where: {
@@ -124,14 +128,23 @@ export class UserService {
       }
     }
 
+    // Validate avatar size if provided (max ~256KB after base64 decode)
+    if (data.avatarData && data.avatarData.length > 350000) {
+      throw new AppError('Avatar image is too large. Max size is 256KB.', 400, 'AVATAR_TOO_LARGE');
+    }
+
     return prisma.user.update({
       where: { id: userId },
-      data,
+      data: {
+        ...(data.username !== undefined && { username: data.username }),
+        ...(data.avatarData !== undefined && { avatarData: data.avatarData }),
+      },
       select: {
         id: true,
         email: true,
         username: true,
         chipBalance: true,
+        avatarData: true,
         createdAt: true,
       },
     });

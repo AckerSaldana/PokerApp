@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Copy, Check, Users, Plus, X, Crown } from 'lucide-react';
 import { gamesApi } from '@/services/api/games';
-import { usersApi } from '@/services/api/users';
+import { balanceApi } from '@/services/api/balance';
 import { useAuthStore } from '@/stores/authStore';
 import { pageTransition, staggerContainer, staggerItem } from '@/components/animations/variants';
 import { ParticipantRow } from '../components/ParticipantRow';
@@ -33,12 +33,11 @@ export function ActiveGamePage() {
 
   // Get user balance
   const { data: balanceData } = useQuery({
-    queryKey: ['balance', user?.id],
-    queryFn: () => usersApi.getBalance(user!.id),
-    enabled: !!user?.id,
+    queryKey: ['balance'],
+    queryFn: () => balanceApi.getBalance(),
   });
 
-  const balance = balanceData?.balance || 0;
+  const balance = balanceData?.balance ?? 0;
   const isHost = game?.hostId === user?.id;
   const myParticipation = game?.participants.find((p) => p.userId === user?.id);
 
@@ -288,6 +287,8 @@ export function ActiveGamePage() {
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: ['game', id] });
           queryClient.invalidateQueries({ queryKey: ['balance'] });
+          queryClient.invalidateQueries({ queryKey: ['myGames'] });
+          queryClient.invalidateQueries({ queryKey: ['activeGame'] });
           setShowCloseModal(false);
         }}
       />
