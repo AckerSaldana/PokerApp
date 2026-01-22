@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { usersApi } from '@/services/api/users';
 import { useAuthStore } from '@/stores/authStore';
-import { cn } from '@/lib/utils';
 import type { User } from '@/lib/types';
 
 interface EditProfileSheetProps {
@@ -49,9 +48,9 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
       return;
     }
 
-    // Validate file size (max 256KB)
-    if (file.size > 256 * 1024) {
-      setError('Image must be smaller than 256KB');
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Image must be smaller than 2MB');
       return;
     }
 

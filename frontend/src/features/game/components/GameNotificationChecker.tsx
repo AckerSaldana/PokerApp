@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { notifications } from '@/services/notifications';
-import type { Game, GameParticipant } from '@/lib/types';
+import type { GameSession, GameParticipant } from '@/lib/types';
 
 interface GameNotificationCheckerProps {
-  game: Game | null | undefined;
+  game: GameSession | null | undefined;
   userId: string | undefined;
   isHost: boolean;
 }
@@ -19,8 +19,8 @@ export function GameNotificationChecker({ game, userId, isHost }: GameNotificati
   useEffect(() => {
     if (!game || !userId || !notifications.isSupported()) return;
 
-    const currentParticipants = new Map(
-      game.participants.map((p) => [p.userId, p])
+    const currentParticipants = new Map<string, GameParticipant>(
+      game.participants.map((p: GameParticipant): [string, GameParticipant] => [p.userId, p])
     );
     const previousParticipants = previousParticipantsRef.current;
 
@@ -32,7 +32,7 @@ export function GameNotificationChecker({ game, userId, isHost }: GameNotificati
 
     // For hosts: Check for new leave requests
     if (isHost) {
-      game.participants.forEach((participant) => {
+      game.participants.forEach((participant: GameParticipant) => {
         const previous = previousParticipants.get(participant.userId);
         // New leave request detected
         if (
@@ -50,7 +50,7 @@ export function GameNotificationChecker({ game, userId, isHost }: GameNotificati
 
     // For players: Check if I got cashed out
     if (!isHost) {
-      const myParticipation = game.participants.find((p) => p.userId === userId);
+      const myParticipation = game.participants.find((p: GameParticipant) => p.userId === userId);
       const myPreviousParticipation = previousParticipants.get(userId);
 
       if (

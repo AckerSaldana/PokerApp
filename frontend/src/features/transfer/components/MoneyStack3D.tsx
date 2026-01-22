@@ -253,9 +253,9 @@ export function MoneyStack3D({ amount, className }: MoneyStack3DProps) {
         <Canvas
           key={`${tier}-${restoreKey}`}
           camera={{ position: [0, 5, 9], fov: 40 }}
+          dpr={1}
           gl={{
             antialias: false,
-            pixelRatio: 1,
             powerPreference: 'low-power',
             failIfMajorPerformanceCaveat: false,
           }}

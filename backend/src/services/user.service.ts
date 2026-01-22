@@ -128,9 +128,9 @@ export class UserService {
       }
     }
 
-    // Validate avatar size if provided (max ~256KB after base64 decode)
-    if (data.avatarData && data.avatarData.length > 350000) {
-      throw new AppError('Avatar image is too large. Max size is 256KB.', 400, 'AVATAR_TOO_LARGE');
+    // Validate avatar size if provided (max ~2MB after base64 decode)
+    if (data.avatarData && data.avatarData.length > 2800000) {
+      throw new AppError('Avatar image is too large. Max size is 2MB.', 400, 'AVATAR_TOO_LARGE');
     }
 
     return prisma.user.update({

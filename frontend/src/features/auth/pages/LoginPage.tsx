@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mail, Lock, Spade } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { authApi } from '@/services/api/auth';
@@ -70,20 +70,14 @@ export function LoginPage() {
         >
           {/* Logo Section */}
           <div className="flex flex-col items-center mb-12">
-            <motion.div
-              className="relative w-24 h-24 mb-6"
+            <motion.img
+              src="/PokerLogo.svg"
+              alt="Poker Night"
+              className="w-24 h-24 mb-6 drop-shadow-[0_2px_20px_rgba(251,191,36,0.3)]"
               initial={{ scale: 0.8, rotate: -10 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.2 }}
-            >
-              <div className="absolute inset-0 bg-[var(--color-gold-500)] rounded-[2rem] blur-2xl opacity-20 animate-pulse" />
-              <div className="relative w-full h-full bg-gradient-to-br from-[var(--color-emerald-800)] to-[var(--color-emerald-950)]
-                              rounded-[2rem] flex items-center justify-center
-                              shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-[var(--color-gold-500)]/30">
-                <div className="absolute inset-0 rounded-[2rem] border border-[var(--color-emerald-500)]/20 pointer-events-none" />
-                <Spade className="w-12 h-12 text-[var(--color-gold-400)] drop-shadow-[0_2px_10px_rgba(251,191,36,0.5)]" />
-              </div>
-            </motion.div>
+            />
 
             <motion.h1
               className="text-4xl font-display font-bold text-white text-center tracking-tight"

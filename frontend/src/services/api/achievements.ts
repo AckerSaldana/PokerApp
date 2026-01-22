@@ -1,11 +1,11 @@
 import { apiClient } from './client';
 import type { Achievement, UnlockedAchievement, ApiResponse } from '@/lib/types';
 
-interface AchievementsResponse {
+export interface AchievementsResponse {
   achievements: Achievement[];
 }
 
-interface UnlockedAchievementsResponse {
+export interface UnlockedAchievementsResponse {
   achievements: UnlockedAchievement[];
 }
 

@@ -15,7 +15,7 @@ export function GamesPage() {
   const [copiedCode, setCopiedCode] = useState(false);
 
   // Check for active game
-  const { data: activeGame, isLoading: loadingActive } = useQuery({
+  const { data: activeGame } = useQuery({
     queryKey: ['activeGame'],
     queryFn: () => gamesApi.getActive(),
     staleTime: 10_000,

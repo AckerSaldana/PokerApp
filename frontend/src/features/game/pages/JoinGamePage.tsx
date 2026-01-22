@@ -1,18 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Coins, AlertCircle } from 'lucide-react';
 import { gamesApi } from '@/services/api/games';
 import { balanceApi } from '@/services/api/balance';
-import { useAuthStore } from '@/stores/authStore';
 import { pageTransition } from '@/components/animations/variants';
+import { ChipStack3D } from '../components/ChipStack3D';
 import { cn, formatChips } from '@/lib/utils';
 
 export function JoinGamePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const user = useAuthStore((state) => state.user);
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [buyIn, setBuyIn] = useState(0);
   const [error, setError] = useState('');
@@ -29,7 +28,7 @@ export function JoinGamePage() {
   const balance = balanceData?.balance ?? 0;
 
   // Fetch game preview when code is complete
-  const { data: gamePreview, isLoading: loadingPreview, error: previewError } = useQuery({
+  const { data: gamePreview, error: previewError } = useQuery({
     queryKey: ['gamePreview', fullCode],
     queryFn: () => gamesApi.getByCode(fullCode),
     enabled: fullCode.length === 6,
@@ -115,7 +114,7 @@ export function JoinGamePage() {
           {code.map((char, index) => (
             <input
               key={index}
-              ref={(el) => (inputRefs.current[index] = el)}
+              ref={(el) => { inputRefs.current[index] = el; }}
               type="text"
               maxLength={6}
               value={char}
@@ -183,6 +182,11 @@ export function JoinGamePage() {
                     Balance: {formatChips(balance)}
                   </span>
                 </div>
+
+                {/* 3D Chip Animation */}
+                {buyIn > 0 && (
+                  <ChipStack3D amount={buyIn} />
+                )}
 
                 {/* Buy-in presets */}
                 <div className="flex gap-2">

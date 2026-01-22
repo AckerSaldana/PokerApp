@@ -22,11 +22,11 @@ export function AchievementsPage() {
     queryFn: achievementsApi.getMyAchievements,
   });
 
-  const achievements = data?.achievements || [];
-  const unlockedCount = achievements.filter((a) => a.isUnlocked).length;
+  const achievements: Achievement[] = data?.achievements || [];
+  const unlockedCount = achievements.filter((a: Achievement) => a.isUnlocked).length;
 
   // Group by category
-  const grouped = achievements.reduce(
+  const grouped = achievements.reduce<Record<AchievementCategory, Achievement[]>>(
     (acc, achievement) => {
       const category = achievement.category;
       if (!acc[category]) acc[category] = [];
@@ -45,7 +45,7 @@ export function AchievementsPage() {
       animate="animate"
       exit="exit"
     >
-      <PageHeader title="Achievements" showBack />
+      <PageHeader title="Achievements" />
 
       <div className="px-6 pb-32">
         {/* Stats Header */}
@@ -97,7 +97,7 @@ export function AchievementsPage() {
               const categoryAchievements = grouped[category];
               if (!categoryAchievements || categoryAchievements.length === 0) return null;
 
-              const categoryUnlocked = categoryAchievements.filter((a) => a.isUnlocked).length;
+              const categoryUnlocked = categoryAchievements.filter((a: Achievement) => a.isUnlocked).length;
 
               return (
                 <motion.div
@@ -115,7 +115,7 @@ export function AchievementsPage() {
                   </div>
 
                   <div className="space-y-3">
-                    {categoryAchievements.map((achievement, index) => (
+                    {categoryAchievements.map((achievement: Achievement, index: number) => (
                       <motion.div
                         key={achievement.id}
                         className={cn(

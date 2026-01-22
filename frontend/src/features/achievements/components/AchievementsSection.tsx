@@ -2,10 +2,11 @@ import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Trophy } from 'lucide-react';
 import { achievementsApi } from '@/services/api/achievements';
+import type { AchievementsResponse, UnlockedAchievementsResponse } from '@/services/api/achievements';
 import { AchievementBadge } from './AchievementBadge';
 import { SkeletonListItem } from '@/components/ui/Skeleton';
 import { cn, formatRelativeTime } from '@/lib/utils';
-import type { Achievement, AchievementCategory } from '@/lib/types';
+import type { Achievement, AchievementCategory, UnlockedAchievement } from '@/lib/types';
 
 const categoryLabels: Record<AchievementCategory, string> = {
   GAMES: 'Games',
@@ -20,11 +21,22 @@ interface AchievementsSectionProps {
 }
 
 export function AchievementsSection({ userId, className }: AchievementsSectionProps) {
-  // Use different query based on whether viewing own or other user's achievements
-  const { data, isLoading, error } = useQuery({
-    queryKey: userId ? ['userAchievements', userId] : ['myAchievements'],
-    queryFn: userId ? () => achievementsApi.getUserAchievements(userId) : achievementsApi.getMyAchievements,
+  // Query for own achievements (full achievement data with progress)
+  const { data: myData, isLoading: myLoading, error: myError } = useQuery<AchievementsResponse>({
+    queryKey: ['myAchievements'],
+    queryFn: achievementsApi.getMyAchievements,
+    enabled: !userId,
   });
+
+  // Query for other user's achievements (only unlocked)
+  const { data: userData, isLoading: userLoading, error: userError } = useQuery<UnlockedAchievementsResponse>({
+    queryKey: ['userAchievements', userId],
+    queryFn: () => achievementsApi.getUserAchievements(userId!),
+    enabled: !!userId,
+  });
+
+  const isLoading = userId ? userLoading : myLoading;
+  const error = userId ? userError : myError;
 
   if (isLoading) {
     return (
@@ -50,13 +62,12 @@ export function AchievementsSection({ userId, className }: AchievementsSectionPr
     );
   }
 
-  const achievements = data?.achievements || [];
-
   // For own profile, show all achievements grouped by category
-  // For other users, just show unlocked ones
   if (!userId) {
+    const achievements: Achievement[] = myData?.achievements || [];
+
     // Group by category
-    const grouped = achievements.reduce(
+    const grouped = achievements.reduce<Record<AchievementCategory, Achievement[]>>(
       (acc, achievement) => {
         const category = achievement.category;
         if (!acc[category]) acc[category] = [];
@@ -66,7 +77,7 @@ export function AchievementsSection({ userId, className }: AchievementsSectionPr
       {} as Record<AchievementCategory, Achievement[]>
     );
 
-    const unlockedCount = achievements.filter((a) => a.isUnlocked).length;
+    const unlockedCount = achievements.filter((a: Achievement) => a.isUnlocked).length;
     const categoryOrder: AchievementCategory[] = ['GAMES', 'WINNINGS', 'TRANSFERS', 'SPECIAL'];
 
     return (
@@ -97,7 +108,7 @@ export function AchievementsSection({ userId, className }: AchievementsSectionPr
             <div key={category}>
               <p className="text-xs text-zinc-500 mb-3">{categoryLabels[category]}</p>
               <div className="grid grid-cols-4 gap-4">
-                {categoryAchievements.map((achievement, index) => (
+                {categoryAchievements.map((achievement: Achievement, index: number) => (
                   <motion.div
                     key={achievement.id}
                     className="flex flex-col items-center"
@@ -125,6 +136,8 @@ export function AchievementsSection({ userId, className }: AchievementsSectionPr
   }
 
   // For other user's profile, just show unlocked achievements
+  const achievements: UnlockedAchievement[] = userData?.achievements || [];
+
   if (achievements.length === 0) {
     return (
       <div className={cn('text-center py-8', className)}>
@@ -140,7 +153,7 @@ export function AchievementsSection({ userId, className }: AchievementsSectionPr
         Achievements ({achievements.length})
       </h3>
       <div className="grid grid-cols-4 gap-4">
-        {achievements.map((achievement, index) => (
+        {achievements.map((achievement: UnlockedAchievement, index: number) => (
           <motion.div
             key={achievement.id}
             className="flex flex-col items-center"

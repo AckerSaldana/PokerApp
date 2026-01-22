@@ -230,9 +230,9 @@ export function ChipStack3D({ amount, className }: ChipStack3DProps) {
         <Canvas
           key={`${tier}-${restoreKey}`} // Force remount when tier changes or context restored
           camera={{ position: [0, 3.5, 6], fov: 38 }}
+          dpr={1}
           gl={{
             antialias: false,
-            pixelRatio: 1,
             powerPreference: 'low-power',
             failIfMajorPerformanceCaveat: false,
           }}

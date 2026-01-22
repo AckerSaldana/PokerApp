@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Users, Calendar, ChevronRight } from 'lucide-react';
+import { Users, ChevronRight } from 'lucide-react';
 import { cn, formatChips } from '@/lib/utils';
-import type { GameSession, GameParticipant } from '@/lib/types';
+import type { GameSession } from '@/lib/types';
 import { useAuthStore } from '@/stores/authStore';
 
 interface GameCardProps {
@@ -17,11 +17,6 @@ export function GameCard({ game }: GameCardProps) {
   const myParticipation = game.participants.find(p => p.userId === user?.id);
   const netResult = myParticipation?.netResult || 0;
   const isPositive = netResult >= 0;
-
-  const formattedDate = new Date(game.date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
 
   return (
     <motion.button

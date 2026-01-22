@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mail, Lock, User, Sparkles } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { authApi } from '@/services/api/auth';
@@ -119,22 +119,14 @@ export function RegisterPage() {
         >
           {/* Premium logo */}
           <div className="flex flex-col items-center mb-10">
-            <motion.div
-              className="relative w-20 h-20 mb-6"
+            <motion.img
+              src="/PokerLogo.svg"
+              alt="Poker Night"
+              className="w-20 h-20 mb-6 drop-shadow-[0_2px_20px_rgba(251,191,36,0.3)]"
               initial={{ scale: 0, rotate: 180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            >
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-amber-500 rounded-2xl blur-xl opacity-30" />
-
-              {/* Logo container */}
-              <div className="relative w-full h-full bg-gradient-to-br from-amber-500 to-amber-600
-                              rounded-2xl flex items-center justify-center
-                              shadow-2xl shadow-amber-600/30 border border-amber-400/20">
-                <Sparkles className="w-10 h-10 text-white" />
-              </div>
-            </motion.div>
+            />
 
             <motion.h1
               className="text-3xl font-bold text-white"
