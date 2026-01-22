@@ -6,48 +6,58 @@ const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
 
 export class BalanceService {
   async getBalanceWithWeeklyBonus(userId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { chipBalance: true, lastWeeklyCredit: true },
-    });
+    return prisma.$transaction(
+      async (tx) => {
+        // Lock user row to prevent concurrent bonus claims
+        const users = await tx.$queryRaw<
+          Array<{ id: string; chipBalance: number; lastWeeklyCredit: Date }>
+        >`
+          SELECT id, "chipBalance", "lastWeeklyCredit" FROM "User" WHERE id = ${userId} FOR UPDATE
+        `;
 
-    if (!user) {
-      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
-    }
+        const user = users[0];
+        if (!user) {
+          throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+        }
 
-    const now = new Date();
-    const lastCredit = new Date(user.lastWeeklyCredit);
-    const timeDiff = now.getTime() - lastCredit.getTime();
-    const weeksPassed = Math.floor(timeDiff / WEEK_IN_MS);
+        const now = new Date();
+        const lastCredit = new Date(user.lastWeeklyCredit);
+        const timeDiff = now.getTime() - lastCredit.getTime();
+        const weeksPassed = Math.floor(timeDiff / WEEK_IN_MS);
 
-    if (weeksPassed > 0) {
-      const bonusChips = weeksPassed * WEEKLY_CHIP_BONUS;
+        if (weeksPassed > 0) {
+          const bonusChips = weeksPassed * WEEKLY_CHIP_BONUS;
 
-      const updated = await prisma.user.update({
-        where: { id: userId },
-        data: {
-          chipBalance: { increment: bonusChips },
-          lastWeeklyCredit: now,
-        },
-        select: { chipBalance: true, lastWeeklyCredit: true },
-      });
+          const updated = await tx.user.update({
+            where: { id: userId },
+            data: {
+              chipBalance: { increment: bonusChips },
+              lastWeeklyCredit: now,
+            },
+            select: { chipBalance: true, lastWeeklyCredit: true },
+          });
 
-      return {
-        balance: updated.chipBalance,
-        weeksAdded: weeksPassed,
-        bonusChips,
-        lastWeeklyCredit: updated.lastWeeklyCredit,
-        nextBonusAt: new Date(now.getTime() + WEEK_IN_MS),
-      };
-    }
+          return {
+            balance: updated.chipBalance,
+            weeksAdded: weeksPassed,
+            bonusChips,
+            lastWeeklyCredit: updated.lastWeeklyCredit,
+            nextBonusAt: new Date(now.getTime() + WEEK_IN_MS),
+          };
+        }
 
-    return {
-      balance: user.chipBalance,
-      weeksAdded: 0,
-      bonusChips: 0,
-      lastWeeklyCredit: user.lastWeeklyCredit,
-      nextBonusAt: new Date(lastCredit.getTime() + WEEK_IN_MS),
-    };
+        return {
+          balance: user.chipBalance,
+          weeksAdded: 0,
+          bonusChips: 0,
+          lastWeeklyCredit: user.lastWeeklyCredit,
+          nextBonusAt: new Date(lastCredit.getTime() + WEEK_IN_MS),
+        };
+      },
+      {
+        isolationLevel: 'Serializable',
+      }
+    );
   }
 
   async getHistory(userId: string, page = 1, limit = 20) {

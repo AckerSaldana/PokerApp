@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { balanceApi } from '@/services/api/balance';
 import { formatChips } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { FloatingChip3D } from '@/components/effects/FloatingChip3D';
+import { ChipBackground3D } from '@/components/effects/ChipBackground3D';
 import { CountingNumber } from '@/components/ui/AnimatedNumber';
 
 export function ChipBalanceCard() {
@@ -38,48 +38,13 @@ export function ChipBalanceCard() {
       {/* Subtle felt texture */}
       <div className="absolute inset-0 felt-texture opacity-15" />
 
+      {/* 3D Chip Background - casino table aesthetic */}
+      <ChipBackground3D opacity={0.2} />
+
       {/* Content */}
       <div className="relative p-8 z-10 min-h-[360px] flex flex-col">
-        {/* Header */}
-        <motion.div
-          className="flex items-center gap-3 mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-        >
-          {/* Badge */}
-          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[var(--color-gold-600)] to-[var(--color-gold-400)] p-[2px]">
-            <div className="w-full h-full rounded-full bg-[var(--color-emerald-950)] flex items-center justify-center">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                className="w-5 h-5 text-[var(--color-gold-400)]"
-              >
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
-                <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1.5" />
-                <circle cx="12" cy="12" r="3" fill="currentColor" />
-              </svg>
-            </div>
-          </div>
-
-          <div>
-            <p className="text-zinc-400 text-xs uppercase tracking-[0.15em] font-medium">Total Balance</p>
-            <p className="text-[var(--color-gold-400)] text-sm font-medium">Digital Wallet</p>
-          </div>
-        </motion.div>
-
         {/* Main Balance Display */}
-        <div className="flex-1 flex flex-col items-center justify-center py-6">
-          {/* 8-Bit Chip */}
-          <motion.div
-            className="absolute right-6 top-1/2 -translate-y-1/2 opacity-25"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.25 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-          >
-            <FloatingChip3D size="xl" color="gold" />
-          </motion.div>
-
+        <div className="flex-1 flex flex-col items-center justify-center">
           {/* Balance number */}
           <AnimatePresence mode="wait">
             <motion.div

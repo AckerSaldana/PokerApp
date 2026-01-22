@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, History, Copy, Check } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { gamesApi } from '@/services/api/games';
-import { pageTransition, staggerContainer, staggerItem } from '@/components/animations/variants';
+import { pageTransition } from '@/components/animations/variants';
 import { GameCard } from '../components/GameCard';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,7 @@ export function GamesPage() {
     queryKey: ['activeGame'],
     queryFn: () => gamesApi.getActive(),
     staleTime: 10_000,
+    refetchOnMount: 'always',
   });
 
   // Get game history
@@ -26,6 +27,7 @@ export function GamesPage() {
     queryKey: ['myGames'],
     queryFn: () => gamesApi.getMyGames(1, 5),
     staleTime: 30_000,
+    refetchOnMount: 'always',
   });
 
   // Create game mutation
@@ -184,18 +186,18 @@ export function GamesPage() {
               <p className="text-zinc-600 text-sm mt-1">Start your first poker night!</p>
             </motion.div>
           ) : (
-            <motion.div
-              className="space-y-3"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
+            <div className="space-y-3">
               {recentGames.map((game) => (
-                <motion.div key={game.id} variants={staggerItem}>
+                <motion.div
+                  key={game.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <GameCard game={game} />
                 </motion.div>
               ))}
-            </motion.div>
+            </div>
           )}
         </div>
       </div>

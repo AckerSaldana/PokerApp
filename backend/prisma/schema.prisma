@@ -12,7 +12,7 @@ model User {
   email            String   @unique
   username         String   @unique
   passwordHash     String
-  chipBalance      Int      @default(100)
+  chipBalance      Int      @default(500)
   lastWeeklyCredit DateTime @default(now())
   avatarData       String?  @db.Text
   createdAt        DateTime @default(now())
@@ -24,6 +24,7 @@ model User {
   transfersSent     ChipTransfer[]           @relation("TransferSender")
   transfersReceived ChipTransfer[]           @relation("TransferReceiver")
   refreshTokens     RefreshToken[]
+  achievements      UserAchievement[]
 
   @@index([username])
   @@index([chipBalance])
@@ -62,13 +63,15 @@ model GameSession {
 }
 
 model GameSessionParticipant {
-  id            String   @id @default(cuid())
-  userId        String
-  gameSessionId String
-  buyIn         Int      @default(0)
-  cashOut       Int      @default(0)
-  netResult     Int      @default(0)
-  joinedAt      DateTime @default(now())
+  id               String    @id @default(cuid())
+  userId           String
+  gameSessionId    String
+  buyIn            Int       @default(0)
+  cashOut          Int       @default(0)
+  netResult        Int       @default(0)
+  joinedAt         DateTime  @default(now())
+  cashedOutAt      DateTime? // null = still playing, set = cashed out early
+  leaveRequestedAt DateTime? // null = not requested, set = wants to leave
 
   // Relations
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -101,4 +104,49 @@ enum TransferStatus {
   PENDING
   COMPLETED
   CANCELLED
+}
+
+// Achievement System
+model Achievement {
+  id          String              @id @default(cuid())
+  key         String              @unique
+  name        String
+  description String
+  category    AchievementCategory
+  tier        AchievementTier     @default(BRONZE)
+  threshold   Int
+  icon        String
+  sortOrder   Int                 @default(0)
+
+  userAchievements UserAchievement[]
+
+  @@index([category])
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+  notified      Boolean  @default(false)
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+enum AchievementCategory {
+  GAMES
+  WINNINGS
+  TRANSFERS
+  SPECIAL
+}
+
+enum AchievementTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
 }

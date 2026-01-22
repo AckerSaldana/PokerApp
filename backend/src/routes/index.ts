@@ -5,6 +5,7 @@ import transferRoutes from './transfer.routes';
 import leaderboardRoutes from './leaderboard.routes';
 import gameRoutes from './game.routes';
 import userRoutes from './user.routes';
+import achievementRoutes from './achievement.routes';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use('/transfers', transferRoutes);
 router.use('/leaderboard', leaderboardRoutes);
 router.use('/games', gameRoutes);
 router.use('/users', userRoutes);
+router.use('/achievements', achievementRoutes);
 
 export default router;

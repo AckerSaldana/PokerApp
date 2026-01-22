@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -222,15 +222,32 @@ interface ChipStack3DProps {
 export function ChipStack3D({ amount, className }: ChipStack3DProps) {
   const tier = getAmountTier(amount);
   const stacks = useMemo(() => getStackConfig(amount), [amount]);
+  const [restoreKey, setRestoreKey] = useState(0);
 
   return (
     <div className={className} style={{ height: '140px', width: '100%' }}>
       {amount > 0 ? (
         <Canvas
-          key={tier} // Force remount when tier changes
+          key={`${tier}-${restoreKey}`} // Force remount when tier changes or context restored
           camera={{ position: [0, 3.5, 6], fov: 38 }}
-          gl={{ antialias: false, pixelRatio: 1 }}
+          gl={{
+            antialias: false,
+            pixelRatio: 1,
+            powerPreference: 'low-power',
+            failIfMajorPerformanceCaveat: false,
+          }}
           shadows
+          onCreated={({ gl }) => {
+            const canvas = gl.domElement;
+            canvas.addEventListener('webglcontextlost', (e) => {
+              e.preventDefault();
+              console.warn('WebGL context lost in ChipStack3D - will restore');
+            });
+            canvas.addEventListener('webglcontextrestored', () => {
+              console.log('WebGL context restored in ChipStack3D');
+              setRestoreKey((k) => k + 1);
+            });
+          }}
         >
           <ChipScene stacks={stacks} />
         </Canvas>

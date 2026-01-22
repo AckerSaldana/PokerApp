@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation } from '@tanstack/react-query';
-import { X, AlertCircle, Check } from 'lucide-react';
+import { X, AlertCircle, Check, CheckCircle } from 'lucide-react';
 import { gamesApi } from '@/services/api/games';
 import { Avatar } from '@/components/ui/Avatar';
 import { cn, formatChips } from '@/lib/utils';
@@ -15,14 +15,23 @@ interface CloseGameModalProps {
 }
 
 export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameModalProps) {
+  // Separate active participants from those who already cashed out
+  const { activeParticipants, cashedOutParticipants } = useMemo(() => {
+    const active = game.participants.filter((p) => !p.cashedOutAt);
+    const cashedOut = game.participants.filter((p) => p.cashedOutAt);
+    return { activeParticipants: active, cashedOutParticipants: cashedOut };
+  }, [game.participants]);
+
+  // Initialize cash-outs only for active participants
   const [cashOuts, setCashOuts] = useState<Record<string, number>>(() =>
-    Object.fromEntries(game.participants.map((p) => [p.userId, 0]))
+    Object.fromEntries(activeParticipants.map((p) => [p.userId, 0]))
   );
 
   const closeMutation = useMutation({
     mutationFn: () => {
-      const results = Object.entries(cashOuts).map(([oderId, cashOut]) => ({
-        userId: oderId,
+      // Only send results for active participants
+      const results = Object.entries(cashOuts).map(([userId, cashOut]) => ({
+        userId,
         cashOut,
       }));
       return gamesApi.close(game.id, results);
@@ -30,18 +39,27 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
     onSuccess,
   });
 
-  const totalBuyIn = useMemo(
+  // Calculate pot breakdown
+  const totalBuyIns = useMemo(
     () => game.participants.reduce((sum, p) => sum + p.buyIn, 0),
     [game.participants]
   );
 
-  const totalCashOut = useMemo(
+  const totalEarlyCashOuts = useMemo(
+    () => cashedOutParticipants.reduce((sum, p) => sum + p.cashOut, 0),
+    [cashedOutParticipants]
+  );
+
+  const remainingPot = totalBuyIns - totalEarlyCashOuts;
+
+  const totalClosingCashOuts = useMemo(
     () => Object.values(cashOuts).reduce((sum, val) => sum + val, 0),
     [cashOuts]
   );
 
-  const isBalanced = totalBuyIn === totalCashOut;
-  const difference = totalCashOut - totalBuyIn;
+  // Validation: closing cash-outs must equal remaining pot
+  const isBalanced = totalClosingCashOuts === remainingPot;
+  const difference = totalClosingCashOuts - remainingPot;
 
   const handleCashOutChange = (userId: string, value: string) => {
     const numValue = Math.max(0, parseInt(value) || 0);
@@ -80,15 +98,30 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
                 </button>
               </div>
 
-              {/* Summary */}
+              {/* Pot Breakdown Summary */}
               <div className="bg-zinc-800/50 rounded-xl p-4 mb-6">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-zinc-400">Total Buy-ins</span>
-                  <span className="text-white font-medium">{formatChips(totalBuyIn)}</span>
+                  <span className="text-white font-medium">{formatChips(totalBuyIns)}</span>
                 </div>
+                {totalEarlyCashOuts > 0 && (
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-zinc-400">Early Cash-outs</span>
+                    <span className="text-amber-400 font-medium">
+                      -{formatChips(totalEarlyCashOuts)}
+                    </span>
+                  </div>
+                )}
+                <div className="h-px bg-zinc-700 my-2" />
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-zinc-400">Total Cash-outs</span>
-                  <span className="text-white font-medium">{formatChips(totalCashOut)}</span>
+                  <span className="text-zinc-400">Remaining Pot</span>
+                  <span className="text-emerald-400 font-bold">{formatChips(remainingPot)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Closing Cash-outs</span>
+                  <span className="text-white font-medium">
+                    {formatChips(totalClosingCashOuts)}
+                  </span>
                 </div>
                 <div className="h-px bg-zinc-700 my-2" />
                 <div className="flex justify-between text-sm">
@@ -103,7 +136,8 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
                         : 'text-amber-400'
                     )}
                   >
-                    {difference > 0 ? '+' : ''}{formatChips(difference)}
+                    {difference > 0 ? '+' : ''}
+                    {formatChips(difference)}
                     {isBalanced && <Check className="inline w-4 h-4 ml-1" />}
                   </span>
                 </div>
@@ -114,58 +148,108 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
                 <div className="flex items-start gap-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-6">
                   <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
                   <p className="text-amber-400 text-sm">
-                    Cash-outs don't match buy-ins. Make sure totals are equal before closing.
+                    Cash-outs must equal the remaining pot ({formatChips(remainingPot)}).
                   </p>
                 </div>
               )}
 
-              {/* Players */}
-              <div className="space-y-3 mb-6">
-                {game.participants.map((participant) => {
-                  const cashOut = cashOuts[participant.userId] || 0;
-                  const netResult = cashOut - participant.buyIn;
-
-                  return (
-                    <div
-                      key={participant.id}
-                      className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
-                    >
-                      <Avatar name={participant.user.username} size="sm" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-white truncate">
-                          {participant.user.username}
-                        </p>
-                        <p className="text-xs text-zinc-500">
-                          Buy-in: {formatChips(participant.buyIn)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="number"
-                          value={cashOut || ''}
-                          onChange={(e) => handleCashOutChange(participant.userId, e.target.value)}
-                          placeholder="0"
-                          className={cn(
-                            'w-20 py-2 px-3 rounded-lg text-right',
-                            'bg-zinc-800 border border-zinc-700',
-                            'text-white placeholder-zinc-500',
-                            'focus:outline-none focus:border-emerald-500'
-                          )}
-                        />
-                        <div className="w-16 text-right">
+              {/* Already Cashed Out Players (read-only) */}
+              {cashedOutParticipants.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+                    Already Cashed Out
+                  </h3>
+                  <div className="space-y-2">
+                    {cashedOutParticipants.map((participant) => (
+                      <div
+                        key={participant.id}
+                        className="flex items-center gap-3 p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/50 opacity-70"
+                      >
+                        <Avatar name={participant.user.username} size="sm" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-zinc-400 truncate">
+                            {participant.user.username}
+                          </p>
+                          <p className="text-xs text-zinc-600">
+                            Buy-in: {formatChips(participant.buyIn)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-500" />
+                          <span className="text-zinc-400 font-medium">
+                            {formatChips(participant.cashOut)}
+                          </span>
                           <span
                             className={cn(
-                              'text-sm font-medium tabular-nums',
-                              netResult >= 0 ? 'text-emerald-400' : 'text-red-400'
+                              'text-sm font-medium tabular-nums ml-2',
+                              participant.netResult >= 0 ? 'text-emerald-400' : 'text-red-400'
                             )}
                           >
-                            {netResult >= 0 ? '+' : ''}{formatChips(netResult)}
+                            {participant.netResult >= 0 ? '+' : ''}
+                            {formatChips(participant.netResult)}
                           </span>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Active Players - need cash-out input */}
+              <div className="mb-6">
+                {cashedOutParticipants.length > 0 && (
+                  <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+                    Remaining Players
+                  </h3>
+                )}
+                <div className="space-y-3">
+                  {activeParticipants.map((participant) => {
+                    const cashOut = cashOuts[participant.userId] || 0;
+                    const netResult = cashOut - participant.buyIn;
+
+                    return (
+                      <div
+                        key={participant.id}
+                        className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
+                      >
+                        <Avatar name={participant.user.username} size="sm" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-white truncate">
+                            {participant.user.username}
+                          </p>
+                          <p className="text-xs text-zinc-500">
+                            Buy-in: {formatChips(participant.buyIn)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="number"
+                            value={cashOut || ''}
+                            onChange={(e) => handleCashOutChange(participant.userId, e.target.value)}
+                            placeholder="0"
+                            className={cn(
+                              'w-20 py-2 px-3 rounded-lg text-right',
+                              'bg-zinc-800 border border-zinc-700',
+                              'text-white placeholder-zinc-500',
+                              'focus:outline-none focus:border-emerald-500'
+                            )}
+                          />
+                          <div className="w-16 text-right">
+                            <span
+                              className={cn(
+                                'text-sm font-medium tabular-nums',
+                                netResult >= 0 ? 'text-emerald-400' : 'text-red-400'
+                              )}
+                            >
+                              {netResult >= 0 ? '+' : ''}
+                              {formatChips(netResult)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Confirm button */}

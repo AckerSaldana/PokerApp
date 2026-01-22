@@ -4,10 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Crown } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { LeaderboardItem } from '../components/LeaderboardItem';
+import { PlayerProfileSheet } from '@/features/profile/components/PlayerProfileSheet';
 import { leaderboardApi } from '@/services/api/leaderboard';
 import { SkeletonListItem } from '@/components/ui/Skeleton';
 import { Avatar } from '@/components/ui/Avatar';
-import { pageTransition, staggerContainer } from '@/components/animations/variants';
+import { useAuthStore } from '@/stores/authStore';
+import { pageTransition } from '@/components/animations/variants';
 import { cn, formatChips } from '@/lib/utils';
 import type { LeaderboardEntry } from '@/lib/types';
 
@@ -20,7 +22,12 @@ const filters: { label: string; value: TimeFilter }[] = [
 ];
 
 // Podium component for top 3
-function Podium({ players }: { players: LeaderboardEntry[] }) {
+interface PodiumProps {
+  players: LeaderboardEntry[];
+  onPlayerTap?: (playerId: string, playerName: string) => void;
+}
+
+function Podium({ players, onPlayerTap }: PodiumProps) {
   const first = players[0];
   const second = players[1];
   const third = players[2];
@@ -41,10 +48,12 @@ function Podium({ players }: { players: LeaderboardEntry[] }) {
         return (
           <motion.div
             key={player.userId}
-            className={cn('flex flex-col items-center', isFirst && '-mt-8')}
+            className={cn('flex flex-col items-center cursor-pointer', isFirst && '-mt-8')}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay, duration: 0.3, ease: 'easeOut' }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onPlayerTap?.(player.userId, player.username)}
           >
             {/* Crown for first place */}
             {isFirst && (
@@ -109,6 +118,14 @@ function Podium({ players }: { players: LeaderboardEntry[] }) {
 
 export function LeaderboardPage() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all-time');
+  const [selectedPlayer, setSelectedPlayer] = useState<{ id: string; name: string } | null>(null);
+  const currentUser = useAuthStore((state) => state.user);
+
+  const handlePlayerTap = (playerId: string, playerName: string) => {
+    // Don't open sheet for own profile
+    if (playerId === currentUser?.id) return;
+    setSelectedPlayer({ id: playerId, name: playerName });
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['leaderboard', timeFilter],
@@ -202,43 +219,47 @@ export function LeaderboardPage() {
               exit={{ opacity: 0, y: -20 }}
             >
               {/* Podium for top 3 */}
-              {hasTopThree && <Podium players={topThree} />}
+              {hasTopThree && <Podium players={topThree} onPlayerTap={handlePlayerTap} />}
 
-              {/* Rest of leaderboard */}
-              {restOfLeaderboard && restOfLeaderboard.length > 0 && (
-                <motion.div
-                  className="space-y-4"
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
+              {/* Rest of leaderboard (positions 4+) */}
+              {hasTopThree && restOfLeaderboard && restOfLeaderboard.length > 0 && (
+                <div className="space-y-4">
                   {restOfLeaderboard.map((player, index) => (
                     <LeaderboardItem
                       key={player.userId}
                       player={player}
-                      index={hasTopThree ? index + 3 : index}
+                      index={index + 3}
+                      onPlayerTap={handlePlayerTap}
                     />
                   ))}
-                </motion.div>
+                </div>
               )}
 
-              {/* Show all items without podium if less than 3 */}
+              {/* Show all items as list if less than 3 players (no podium) */}
               {!hasTopThree && data?.leaderboard && (
-                <motion.div
-                  className="space-y-4"
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
+                <div className="space-y-4">
                   {data.leaderboard.map((player, index) => (
-                    <LeaderboardItem key={player.userId} player={player} index={index} />
+                    <LeaderboardItem
+                      key={player.userId}
+                      player={player}
+                      index={index}
+                      onPlayerTap={handlePlayerTap}
+                    />
                   ))}
-                </motion.div>
+                </div>
               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Player Profile Sheet */}
+      <PlayerProfileSheet
+        isOpen={!!selectedPlayer}
+        onClose={() => setSelectedPlayer(null)}
+        playerId={selectedPlayer?.id || null}
+        playerName={selectedPlayer?.name}
+      />
     </motion.div>
   );
 }

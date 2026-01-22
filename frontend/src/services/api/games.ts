@@ -37,13 +37,21 @@ export const gamesApi = {
     return response.data.data!;
   },
 
-  leave: async (gameId: string) => {
-    const response = await apiClient.post<ApiResponse<null>>(`/games/${gameId}/leave`);
-    return response.data;
+  requestLeave: async (gameId: string) => {
+    const response = await apiClient.post<ApiResponse<GameSession>>(`/games/${gameId}/request-leave`);
+    return response.data.data!;
   },
 
   close: async (gameId: string, results: CloseGameResult[]) => {
     const response = await apiClient.post<ApiResponse<GameSession>>(`/games/${gameId}/close`, { results });
+    return response.data.data!;
+  },
+
+  earlyCashOut: async (gameId: string, participantUserId: string, cashOut: number) => {
+    const response = await apiClient.post<ApiResponse<GameSession>>(`/games/${gameId}/early-cashout`, {
+      participantUserId,
+      cashOut,
+    });
     return response.data.data!;
   },
 

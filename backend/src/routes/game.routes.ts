@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as gameController from '../controllers/game.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
+import { requireGameHost } from '../middleware/gameAuth.middleware';
 import { validate } from '../middleware/validation.middleware';
 import {
   createGameSchema,
@@ -8,6 +9,7 @@ import {
   joinGameSchema,
   rebuySchema,
   closeGameSchema,
+  earlyCashOutSchema,
 } from '../validators/game.validator';
 
 const router = Router();
@@ -24,12 +26,14 @@ router.post('/join/:code', authenticateToken, validate(joinGameSchema), gameCont
 
 // Game by ID
 router.get('/:id', gameController.getGameById);
-router.patch('/:id', authenticateToken, validate(updateGameSchema), gameController.updateGame);
-router.delete('/:id', authenticateToken, gameController.deleteGame);
+router.patch('/:id', authenticateToken, requireGameHost, validate(updateGameSchema), gameController.updateGame);
+router.delete('/:id', authenticateToken, requireGameHost, gameController.deleteGame);
 
-// Game actions
+// Game actions (rebuy and request-leave can be done by any participant)
 router.post('/:id/rebuy', authenticateToken, validate(rebuySchema), gameController.rebuy);
-router.post('/:id/leave', authenticateToken, gameController.leaveGame);
-router.post('/:id/close', authenticateToken, validate(closeGameSchema), gameController.closeGame);
+router.post('/:id/request-leave', authenticateToken, gameController.requestLeave);
+// Host-only actions
+router.post('/:id/close', authenticateToken, requireGameHost, validate(closeGameSchema), gameController.closeGame);
+router.post('/:id/early-cashout', authenticateToken, requireGameHost, validate(earlyCashOutSchema), gameController.earlyCashOut);
 
 export default router;

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Check, Send, History, Trophy } from 'lucide-react';
+import { Check, Send, History, Trophy, UserPlus, ChevronRight } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
-import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { Avatar } from '@/components/ui/Avatar';
+import { ChipsCelebration } from '@/components/effects/ChipsCelebration';
 import { usersApi } from '@/services/api/users';
 import { transferApi } from '@/services/api/transfer';
 import { useAuthStore } from '@/stores/authStore';
@@ -14,6 +15,8 @@ import { formatChips, cn } from '@/lib/utils';
 import { pageTransition, successPop } from '@/components/animations/variants';
 import { TransferLeaderboard } from '../components/TransferLeaderboard';
 import { TransferHistoryWithUser } from '../components/TransferHistoryWithUser';
+import { PlayerSelectorSheet } from '../components/PlayerSelectorSheet';
+import { MoneyStack3D } from '../components/MoneyStack3D';
 import type { User } from '@/lib/types';
 
 type TabType = 'send' | 'history' | 'leaderboard';
@@ -31,6 +34,7 @@ export function TransferPage() {
   const currentUser = useAuthStore((state) => state.user);
   const [activeTab, setActiveTab] = useState<TabType>('send');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showPlayerSheet, setShowPlayerSheet] = useState(false);
   const [amount, setAmount] = useState(10);
   const [note, setNote] = useState('');
   const [success, setSuccess] = useState(false);
@@ -45,6 +49,7 @@ export function TransferPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['balance'] });
       queryClient.invalidateQueries({ queryKey: ['transfers'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
@@ -55,8 +60,7 @@ export function TransferPage() {
     },
   });
 
-  const otherUsers = users?.filter((u) => u.id !== currentUser?.id) || [];
-
+  
   const handleTransfer = () => {
     if (!selectedUser) return;
     transferMutation.mutate({
@@ -128,33 +132,10 @@ export function TransferPage() {
                     exit={{ opacity: 0 }}
                   >
                     {/* Backdrop with blur */}
-                    <div className="absolute inset-0 bg-zinc-950/95 backdrop-blur-xl" />
+                    <div className="absolute inset-0 bg-zinc-950/90 backdrop-blur-xl" />
 
-                    {/* Falling chip particles */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                      {Array.from({ length: 15 }).map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-4 h-4 rounded-full bg-gradient-to-br from-amber-400 to-amber-600"
-                          initial={{
-                            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 400),
-                            y: -20,
-                            rotate: 0,
-                            opacity: 1
-                          }}
-                          animate={{
-                            y: (typeof window !== 'undefined' ? window.innerHeight : 800) + 20,
-                            rotate: 360 * (Math.random() > 0.5 ? 1 : -1),
-                            opacity: 0
-                          }}
-                          transition={{
-                            duration: 2 + Math.random(),
-                            delay: Math.random() * 0.5,
-                            ease: 'easeIn'
-                          }}
-                        />
-                      ))}
-                    </div>
+                    {/* 3D Falling chips celebration */}
+                    <ChipsCelebration chipCount={30} />
 
                     {/* Success content */}
                     <motion.div
@@ -195,77 +176,76 @@ export function TransferPage() {
                 )}
               </AnimatePresence>
 
-              {/* Enhanced user selection */}
-              <div>
-                <p className="text-sm text-zinc-400 mb-3 uppercase tracking-wider">Select recipient</p>
-                <div className="grid grid-cols-4 gap-3">
-                  {otherUsers.map((user, i) => (
-                    <motion.button
-                      key={user.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      onClick={() => setSelectedUser(user)}
-                      className={cn(
-                        'relative flex flex-col items-center p-4 rounded-2xl',
-                        'border-2 transition-all duration-300',
-                        'backdrop-blur-sm',
-                        selectedUser?.id === user.id
-                          ? 'bg-emerald-600/20 border-emerald-500 shadow-lg shadow-emerald-500/20'
-                          : 'bg-zinc-900/50 border-zinc-800/50 hover:border-zinc-700'
-                      )}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {/* Selection checkmark */}
-                      <AnimatePresence>
-                        {selectedUser?.id === user.id && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0 }}
-                            className="absolute -top-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full
-                                       flex items-center justify-center shadow-lg"
-                          >
-                            <Check className="w-4 h-4 text-white" />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-
-                      <Avatar
-                        name={user.username}
-                        size="lg"
-                        className={cn(selectedUser?.id === user.id && 'ring-2 ring-emerald-500')}
-                      />
-                      <p className="text-xs text-white mt-2 truncate w-full text-center font-medium">
-                        {user.username}
-                      </p>
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
+              {/* Recipient selector button */}
+              <motion.button
+                onClick={() => setShowPlayerSheet(true)}
+                className={cn(
+                  'w-full p-4 rounded-2xl border-2 transition-all duration-300',
+                  'flex items-center gap-4',
+                  selectedUser
+                    ? 'bg-emerald-600/10 border-emerald-500/50 hover:border-emerald-400'
+                    : 'bg-zinc-900/50 border-zinc-700/50 border-dashed hover:border-zinc-600 hover:bg-zinc-900'
+                )}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                {selectedUser ? (
+                  <>
+                    <Avatar
+                      src={selectedUser.avatarData || undefined}
+                      name={selectedUser.username}
+                      size="lg"
+                      className="ring-2 ring-emerald-500"
+                    />
+                    <div className="flex-1 text-left">
+                      <p className="text-xs text-emerald-400 uppercase tracking-wider mb-0.5">Sending to</p>
+                      <p className="text-white font-semibold text-lg">{selectedUser.username}</p>
+                      <p className="text-zinc-400 text-sm">{formatChips(selectedUser.chipBalance)} chips</p>
+                    </div>
+                    <div className="text-zinc-400">
+                      <ChevronRight className="w-5 h-5" />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
+                      <UserPlus className="w-6 h-6 text-zinc-500" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="text-white font-medium">Select Recipient</p>
+                      <p className="text-zinc-500 text-sm">Tap to choose a player</p>
+                    </div>
+                    <div className="text-zinc-500">
+                      <ChevronRight className="w-5 h-5" />
+                    </div>
+                  </>
+                )}
+              </motion.button>
 
               {/* Premium amount slider */}
-              <Card variant="premium" className="p-8 relative overflow-visible">
+              <Card variant="premium" className="p-6 pt-8 relative overflow-visible">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--color-emerald-950)] px-4 py-1 rounded-full border border-[var(--color-emerald-500)]/30 shadow-lg">
                     <span className="text-[10px] text-[var(--color-emerald-400)] uppercase tracking-widest font-bold">Amount to Send</span>
                 </div>
 
+                {/* 3D Money stacks visualization */}
+                <MoneyStack3D amount={amount} className="mb-2" />
+
                 {/* Large animated number */}
                 <motion.div
-                  className="text-center mb-10 mt-2"
+                  className="text-center mb-6"
                   key={amount}
                   initial={{ scale: 0.8, opacity: 0, filter: 'blur(10px)' }}
                   animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 >
-                  <span className="text-7xl font-display font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] tabular-nums">
+                  <span className="text-6xl font-display font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] tabular-nums">
                     ${amount}
                   </span>
                 </motion.div>
 
                 {/* Custom styled range slider */}
-                <div className="relative mb-8 px-2">
+                <div className="relative mb-6 px-2">
                   {/* Track background */}
                   <div className="h-4 bg-[var(--bg-surface)] rounded-full overflow-hidden border border-[var(--glass-border)] shadow-inner">
                     {/* Filled portion with gradient */}
@@ -376,6 +356,16 @@ export function TransferPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Player Selector Sheet */}
+      <PlayerSelectorSheet
+        isOpen={showPlayerSheet}
+        onClose={() => setShowPlayerSheet(false)}
+        users={users || []}
+        selectedUser={selectedUser}
+        onSelect={setSelectedUser}
+        currentUserId={currentUser?.id}
+      />
     </motion.div>
   );
 }

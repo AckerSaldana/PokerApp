@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Copy, Check, Users, Plus, X, Crown } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Users, Plus } from 'lucide-react';
 import { gamesApi } from '@/services/api/games';
 import { balanceApi } from '@/services/api/balance';
 import { useAuthStore } from '@/stores/authStore';
-import { pageTransition, staggerContainer, staggerItem } from '@/components/animations/variants';
+import { pageTransition } from '@/components/animations/variants';
 import { ParticipantRow } from '../components/ParticipantRow';
 import { RebuyModal } from '../components/RebuyModal';
 import { CloseGameModal } from '../components/CloseGameModal';
+import { EarlyCashOutModal } from '../components/EarlyCashOutModal';
+import { PlayerProfileSheet } from '@/features/profile/components/PlayerProfileSheet';
+import { GameNotificationChecker } from '../components/GameNotificationChecker';
 import { cn, formatChips } from '@/lib/utils';
+import type { GameParticipant } from '@/lib/types';
 
 export function ActiveGamePage() {
   const { id } = useParams<{ id: string }>();
@@ -21,13 +25,23 @@ export function ActiveGamePage() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [showRebuyModal, setShowRebuyModal] = useState(false);
   const [showCloseModal, setShowCloseModal] = useState(false);
+  const [showEarlyCashOutModal, setShowEarlyCashOutModal] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] = useState<GameParticipant | null>(null);
+  const [selectedPlayerProfile, setSelectedPlayerProfile] = useState<{ id: string; name: string } | null>(null);
 
-  // Fetch game details
+  const handlePlayerTap = (playerId: string, playerName: string) => {
+    setSelectedPlayerProfile({ id: playerId, name: playerName });
+  };
+
+  // Fetch game details with real-time polling
   const { data: game, isLoading, isError, error } = useQuery({
     queryKey: ['game', id],
     queryFn: () => gamesApi.getById(id!),
     enabled: !!id,
-    refetchInterval: (query) => query.state.data?.isActive ? 5000 : false,
+    refetchInterval: (query) => query.state.data?.isActive ? 3000 : false,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    staleTime: 0,
     retry: 1,
   });
 
@@ -40,6 +54,8 @@ export function ActiveGamePage() {
   const balance = balanceData?.balance ?? 0;
   const isHost = game?.hostId === user?.id;
   const myParticipation = game?.participants.find((p) => p.userId === user?.id);
+  const amICashedOut = !!myParticipation?.cashedOutAt;
+  const haveIRequestedLeave = !!myParticipation?.leaveRequestedAt && !amICashedOut;
 
   // Rebuy mutation
   const rebuyMutation = useMutation({
@@ -51,13 +67,23 @@ export function ActiveGamePage() {
     },
   });
 
-  // Leave game mutation
-  const leaveMutation = useMutation({
-    mutationFn: () => gamesApi.leave(id!),
+  // Request leave mutation
+  const requestLeaveMutation = useMutation({
+    mutationFn: () => gamesApi.requestLeave(id!),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeGame'] });
+      queryClient.invalidateQueries({ queryKey: ['game', id] });
+    },
+  });
+
+  // Early cash-out mutation
+  const earlyCashOutMutation = useMutation({
+    mutationFn: ({ participantUserId, cashOut }: { participantUserId: string; cashOut: number }) =>
+      gamesApi.earlyCashOut(id!, participantUserId, cashOut),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['game', id] });
       queryClient.invalidateQueries({ queryKey: ['balance'] });
-      navigate('/game');
+      setShowEarlyCashOutModal(false);
+      setSelectedParticipant(null);
     },
   });
 
@@ -95,6 +121,12 @@ export function ActiveGamePage() {
   }
 
   const totalPot = game.participants.reduce((sum, p) => sum + p.buyIn, 0);
+
+  // Calculate available pot (for early cash-outs)
+  const totalEarlyCashOuts = game.participants
+    .filter((p) => p.cashedOutAt)
+    .reduce((sum, p) => sum + p.cashOut, 0);
+  const availablePot = totalPot - totalEarlyCashOuts;
 
   return (
     <motion.div
@@ -172,9 +204,14 @@ export function ActiveGamePage() {
           </div>
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
             <div className="flex items-center gap-2 text-zinc-500 mb-1">
-              <span className="text-xs">Total Pot</span>
+              <span className="text-xs">{totalEarlyCashOuts > 0 ? 'Remaining Pot' : 'Total Pot'}</span>
             </div>
-            <p className="text-2xl font-bold text-emerald-400">{formatChips(totalPot)}</p>
+            <p className="text-2xl font-bold text-emerald-400">{formatChips(availablePot)}</p>
+            {totalEarlyCashOuts > 0 && (
+              <p className="text-xs text-zinc-500 mt-1">
+                {formatChips(totalEarlyCashOuts)} cashed out
+              </p>
+            )}
           </div>
         </div>
 
@@ -183,27 +220,37 @@ export function ActiveGamePage() {
           <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-4">
             Players
           </h2>
-          <motion.div
-            className="space-y-2"
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-          >
+          <div className="space-y-2">
             {game.participants.map((participant) => (
-              <motion.div key={participant.id} variants={staggerItem}>
+              <motion.div
+                key={participant.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
                 <ParticipantRow
                   participant={participant}
                   isHost={participant.userId === game.hostId}
                   isCurrentUser={participant.userId === user?.id}
                   gameActive={game.isActive}
+                  showCashOutButton={
+                    isHost &&
+                    participant.userId !== user?.id &&
+                    !participant.cashedOutAt
+                  }
+                  onCashOut={() => {
+                    setSelectedParticipant(participant);
+                    setShowEarlyCashOutModal(true);
+                  }}
+                  onPlayerTap={handlePlayerTap}
                 />
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
 
-        {/* My Buy-in (if in game and active) */}
-        {myParticipation && game.isActive && (
+        {/* My Buy-in (if in game, active, and NOT cashed out) */}
+        {myParticipation && game.isActive && !amICashedOut && (
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
             <div className="flex items-center justify-between">
               <div>
@@ -225,10 +272,12 @@ export function ActiveGamePage() {
           </div>
         )}
 
-        {/* Game Results (if closed) */}
-        {!game.isActive && myParticipation && (
+        {/* Game Results (if closed OR if cashed out early) */}
+        {((!game.isActive && myParticipation) || amICashedOut) && (
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-            <p className="text-zinc-500 text-sm mb-2">Your Result</p>
+            <p className="text-zinc-500 text-sm mb-2">
+              {amICashedOut && game.isActive ? 'You Cashed Out' : 'Your Result'}
+            </p>
             <div className="flex items-baseline gap-2">
               <p
                 className={cn(
@@ -247,6 +296,15 @@ export function ActiveGamePage() {
           </div>
         )}
 
+        {/* Leave Request Waiting State */}
+        {haveIRequestedLeave && game.isActive && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+            <p className="text-amber-400 text-sm">
+              Leave requested. Waiting for host to cash you out.
+            </p>
+          </div>
+        )}
+
         {/* Actions */}
         {game.isActive && (
           <div className="space-y-3">
@@ -258,13 +316,13 @@ export function ActiveGamePage() {
                 End Game
               </button>
             )}
-            {!isHost && (
+            {!isHost && !amICashedOut && !haveIRequestedLeave && (
               <button
-                onClick={() => leaveMutation.mutate()}
-                disabled={leaveMutation.isPending}
+                onClick={() => requestLeaveMutation.mutate()}
+                disabled={requestLeaveMutation.isPending}
                 className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium rounded-xl transition-colors"
               >
-                {leaveMutation.isPending ? 'Leaving...' : 'Leave Game'}
+                {requestLeaveMutation.isPending ? 'Requesting...' : 'Request Leave'}
               </button>
             )}
           </div>
@@ -289,8 +347,43 @@ export function ActiveGamePage() {
           queryClient.invalidateQueries({ queryKey: ['balance'] });
           queryClient.invalidateQueries({ queryKey: ['myGames'] });
           queryClient.invalidateQueries({ queryKey: ['activeGame'] });
+          queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
           setShowCloseModal(false);
         }}
+      />
+
+      <EarlyCashOutModal
+        isOpen={showEarlyCashOutModal}
+        onClose={() => {
+          setShowEarlyCashOutModal(false);
+          setSelectedParticipant(null);
+        }}
+        onConfirm={(amount) => {
+          if (selectedParticipant) {
+            earlyCashOutMutation.mutate({
+              participantUserId: selectedParticipant.userId,
+              cashOut: amount,
+            });
+          }
+        }}
+        participant={selectedParticipant}
+        availablePot={availablePot}
+        isPending={earlyCashOutMutation.isPending}
+      />
+
+      {/* Player Profile Sheet */}
+      <PlayerProfileSheet
+        isOpen={!!selectedPlayerProfile}
+        onClose={() => setSelectedPlayerProfile(null)}
+        playerId={selectedPlayerProfile?.id || null}
+        playerName={selectedPlayerProfile?.name}
+      />
+
+      {/* Game Notifications */}
+      <GameNotificationChecker
+        game={game}
+        userId={user?.id}
+        isHost={isHost}
       />
     </motion.div>
   );

@@ -9,7 +9,6 @@ import { formatChips, cn } from '@/lib/utils';
 import { usersApi } from '@/services/api/users';
 import { transferApi } from '@/services/api/transfer';
 import { useAuthStore } from '@/stores/authStore';
-import { staggerContainer } from '@/components/animations/variants';
 import type { User, Transfer } from '@/lib/types';
 
 function TransferItem({ transfer, currentUserId }: { transfer: Transfer; currentUserId: string }) {
@@ -183,12 +182,7 @@ export function TransferHistoryWithUser() {
                 </p>
               </div>
             ) : (
-              <motion.div
-                className="space-y-2"
-                variants={staggerContainer}
-                initial="initial"
-                animate="animate"
-              >
+              <div className="space-y-2">
                 {historyData?.transfers.map((transfer) => (
                   <TransferItem
                     key={transfer.id}
@@ -196,7 +190,7 @@ export function TransferHistoryWithUser() {
                     currentUserId={currentUser?.id || ''}
                   />
                 ))}
-              </motion.div>
+              </div>
             )}
           </motion.div>
         )}

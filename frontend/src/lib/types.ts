@@ -57,6 +57,8 @@ export interface GameParticipant {
   cashOut: number;
   netResult: number;
   joinedAt: string;
+  cashedOutAt: string | null;
+  leaveRequestedAt: string | null;
   user: { id: string; username: string };
 }
 
@@ -137,4 +139,33 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     hasNext: boolean;
     hasPrev: boolean;
   };
+}
+
+// Achievement types
+export type AchievementCategory = 'GAMES' | 'WINNINGS' | 'TRANSFERS' | 'SPECIAL';
+export type AchievementTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
+
+export interface Achievement {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  category: AchievementCategory;
+  tier: AchievementTier;
+  icon: string;
+  threshold: number;
+  unlockedAt: string | null;
+  isUnlocked: boolean;
+  progress: number;
+  progressPercent: number;
+}
+
+export interface UnlockedAchievement {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  tier: AchievementTier;
+  icon: string;
+  unlockedAt: string;
 }

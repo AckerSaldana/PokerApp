@@ -94,10 +94,10 @@ export const rebuy = async (req: AuthRequest, res: Response, next: NextFunction)
   }
 };
 
-export const leaveGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const requestLeave = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    await gameService.leaveGame(req.params.id as string, req.user!.userId);
-    apiResponse.success(res, null, 'Left game');
+    const game = await gameService.requestLeave(req.params.id as string, req.user!.userId);
+    apiResponse.success(res, game, 'Leave request sent');
   } catch (error) {
     next(error);
   }
@@ -111,6 +111,20 @@ export const closeGame = async (req: AuthRequest, res: Response, next: NextFunct
       req.body.results
     );
     apiResponse.success(res, game, 'Game closed');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const earlyCashOut = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const game = await gameService.earlyCashOut(
+      req.params.id as string,
+      req.user!.userId,
+      req.body.participantUserId,
+      req.body.cashOut
+    );
+    apiResponse.success(res, game, 'Player cashed out');
   } catch (error) {
     next(error);
   }

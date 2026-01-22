@@ -4,6 +4,9 @@ import { AppRouter } from './Router';
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
 import { authApi } from '@/services/api/auth';
+import { AchievementChecker } from '@/features/achievements/components/AchievementChecker';
+import { NotificationPermissionBanner } from '@/components/NotificationPermissionBanner';
+import { TransferNotificationChecker } from '@/features/transfer/components/TransferNotificationChecker';
 
 function AuthInitializer() {
   const { accessToken, login, logout, setLoading } = useAuthStore();
@@ -43,11 +46,22 @@ function ThemeInitializer() {
   return null;
 }
 
+function NotificationInitializer() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  if (!isAuthenticated) return null;
+
+  return <NotificationPermissionBanner />;
+}
+
 export default function App() {
   return (
     <QueryProvider>
       <AuthInitializer />
       <ThemeInitializer />
+      <NotificationInitializer />
+      <AchievementChecker />
+      <TransferNotificationChecker />
       <AppRouter />
     </QueryProvider>
   );

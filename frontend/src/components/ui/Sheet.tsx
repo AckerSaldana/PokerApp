@@ -16,7 +16,7 @@ export function Sheet({ isOpen, onClose, children, className }: SheetProps) {
       {isOpen && (
         <>
           <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
             variants={backdropVariants}
             initial="initial"
             animate="animate"
@@ -25,7 +25,7 @@ export function Sheet({ isOpen, onClose, children, className }: SheetProps) {
           />
           <motion.div
             className={cn(
-              'fixed bottom-0 left-0 right-0 bg-zinc-900 rounded-t-3xl z-50',
+              'fixed bottom-0 left-0 right-0 bg-zinc-900 rounded-t-3xl z-[70]',
               'pb-safe max-h-[85vh] overflow-hidden',
               className
             )}

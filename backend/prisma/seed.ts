@@ -1,0 +1,246 @@
+import { PrismaClient, AchievementCategory, AchievementTier } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+const achievements = [
+  // Game achievements
+  {
+    key: 'first_game',
+    name: 'First Steps',
+    description: 'Play your first game',
+    category: AchievementCategory.GAMES,
+    tier: AchievementTier.BRONZE,
+    threshold: 1,
+    icon: 'gamepad-2',
+    sortOrder: 1,
+  },
+  {
+    key: 'games_10',
+    name: 'Rookie',
+    description: 'Play 10 games',
+    category: AchievementCategory.GAMES,
+    tier: AchievementTier.BRONZE,
+    threshold: 10,
+    icon: 'gamepad-2',
+    sortOrder: 2,
+  },
+  {
+    key: 'games_25',
+    name: 'Regular',
+    description: 'Play 25 games',
+    category: AchievementCategory.GAMES,
+    tier: AchievementTier.SILVER,
+    threshold: 25,
+    icon: 'gamepad-2',
+    sortOrder: 3,
+  },
+  {
+    key: 'games_50',
+    name: 'Veteran',
+    description: 'Play 50 games',
+    category: AchievementCategory.GAMES,
+    tier: AchievementTier.GOLD,
+    threshold: 50,
+    icon: 'gamepad-2',
+    sortOrder: 4,
+  },
+  {
+    key: 'games_100',
+    name: 'Poker Legend',
+    description: 'Play 100 games',
+    category: AchievementCategory.GAMES,
+    tier: AchievementTier.PLATINUM,
+    threshold: 100,
+    icon: 'crown',
+    sortOrder: 5,
+  },
+
+  // Winnings achievements
+  {
+    key: 'first_win',
+    name: 'First Blood',
+    description: 'Win your first game',
+    category: AchievementCategory.WINNINGS,
+    tier: AchievementTier.BRONZE,
+    threshold: 1,
+    icon: 'trophy',
+    sortOrder: 10,
+  },
+  {
+    key: 'winnings_500',
+    name: 'Getting Lucky',
+    description: 'Accumulate 500 chips in total winnings',
+    category: AchievementCategory.WINNINGS,
+    tier: AchievementTier.BRONZE,
+    threshold: 500,
+    icon: 'trending-up',
+    sortOrder: 11,
+  },
+  {
+    key: 'winnings_1000',
+    name: 'First Grand',
+    description: 'Accumulate 1,000 chips in total winnings',
+    category: AchievementCategory.WINNINGS,
+    tier: AchievementTier.SILVER,
+    threshold: 1000,
+    icon: 'trending-up',
+    sortOrder: 12,
+  },
+  {
+    key: 'winnings_5000',
+    name: 'High Roller',
+    description: 'Accumulate 5,000 chips in total winnings',
+    category: AchievementCategory.WINNINGS,
+    tier: AchievementTier.GOLD,
+    threshold: 5000,
+    icon: 'trending-up',
+    sortOrder: 13,
+  },
+  {
+    key: 'winnings_10000',
+    name: 'Chip Magnate',
+    description: 'Accumulate 10,000 chips in total winnings',
+    category: AchievementCategory.WINNINGS,
+    tier: AchievementTier.PLATINUM,
+    threshold: 10000,
+    icon: 'gem',
+    sortOrder: 14,
+  },
+  {
+    key: 'big_win_200',
+    name: 'Nice Hand',
+    description: 'Win 200+ chips in a single game',
+    category: AchievementCategory.WINNINGS,
+    tier: AchievementTier.BRONZE,
+    threshold: 200,
+    icon: 'flame',
+    sortOrder: 15,
+  },
+  {
+    key: 'big_win_500',
+    name: 'Jackpot',
+    description: 'Win 500+ chips in a single game',
+    category: AchievementCategory.WINNINGS,
+    tier: AchievementTier.SILVER,
+    threshold: 500,
+    icon: 'flame',
+    sortOrder: 16,
+  },
+  {
+    key: 'big_win_1000',
+    name: 'Crushing It',
+    description: 'Win 1,000+ chips in a single game',
+    category: AchievementCategory.WINNINGS,
+    tier: AchievementTier.GOLD,
+    threshold: 1000,
+    icon: 'flame',
+    sortOrder: 17,
+  },
+
+  // Transfer achievements
+  {
+    key: 'first_transfer',
+    name: 'Generous Soul',
+    description: 'Send your first chip transfer',
+    category: AchievementCategory.TRANSFERS,
+    tier: AchievementTier.BRONZE,
+    threshold: 1,
+    icon: 'send',
+    sortOrder: 20,
+  },
+  {
+    key: 'transfers_10',
+    name: 'Chip Dealer',
+    description: 'Send 10 transfers',
+    category: AchievementCategory.TRANSFERS,
+    tier: AchievementTier.SILVER,
+    threshold: 10,
+    icon: 'send',
+    sortOrder: 21,
+  },
+  {
+    key: 'transfers_50',
+    name: 'Banker',
+    description: 'Send 50 transfers',
+    category: AchievementCategory.TRANSFERS,
+    tier: AchievementTier.GOLD,
+    threshold: 50,
+    icon: 'landmark',
+    sortOrder: 22,
+  },
+  {
+    key: 'transfer_volume_1000',
+    name: 'Moving Money',
+    description: 'Transfer 1,000 total chips',
+    category: AchievementCategory.TRANSFERS,
+    tier: AchievementTier.SILVER,
+    threshold: 1000,
+    icon: 'coins',
+    sortOrder: 23,
+  },
+  {
+    key: 'transfer_volume_5000',
+    name: 'Big Spender',
+    description: 'Transfer 5,000 total chips',
+    category: AchievementCategory.TRANSFERS,
+    tier: AchievementTier.GOLD,
+    threshold: 5000,
+    icon: 'coins',
+    sortOrder: 24,
+  },
+
+  // Special achievements
+  {
+    key: 'host_first',
+    name: 'Host With The Most',
+    description: 'Host your first game',
+    category: AchievementCategory.SPECIAL,
+    tier: AchievementTier.BRONZE,
+    threshold: 1,
+    icon: 'star',
+    sortOrder: 30,
+  },
+  {
+    key: 'host_10',
+    name: 'Party Organizer',
+    description: 'Host 10 games',
+    category: AchievementCategory.SPECIAL,
+    tier: AchievementTier.SILVER,
+    threshold: 10,
+    icon: 'star',
+    sortOrder: 31,
+  },
+  {
+    key: 'host_25',
+    name: 'Poker Promoter',
+    description: 'Host 25 games',
+    category: AchievementCategory.SPECIAL,
+    tier: AchievementTier.GOLD,
+    threshold: 25,
+    icon: 'medal',
+    sortOrder: 32,
+  },
+];
+
+async function main() {
+  console.log('Seeding achievements...');
+
+  for (const achievement of achievements) {
+    await prisma.achievement.upsert({
+      where: { key: achievement.key },
+      update: achievement,
+      create: achievement,
+    });
+  }
+
+  console.log(`Seeded ${achievements.length} achievements`);
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

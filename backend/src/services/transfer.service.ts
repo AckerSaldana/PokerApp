@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/error.middleware';
 import { CreateTransferInput } from '../validators/transfer.validator';
+import { achievementService } from './achievement.service';
 
 const MAX_TRANSFER_AMOUNT = 100;
 
@@ -20,58 +21,68 @@ export class TransferService {
       throw new AppError('Cannot transfer chips to yourself', 400, 'SELF_TRANSFER');
     }
 
-    const receiver = await prisma.user.findUnique({
-      where: { id: receiverId },
-    });
+    return prisma.$transaction(
+      async (tx) => {
+        // Lock both sender and receiver rows to prevent concurrent transfer race conditions
+        const users = await tx.$queryRaw<
+          Array<{ id: string; chipBalance: number; username: string }>
+        >`
+          SELECT id, "chipBalance", username FROM "User"
+          WHERE id IN (${senderId}, ${receiverId})
+          FOR UPDATE
+        `;
 
-    if (!receiver) {
-      throw new AppError('Receiver not found', 404, 'RECEIVER_NOT_FOUND');
-    }
+        const sender = users.find((u) => u.id === senderId);
+        const receiver = users.find((u) => u.id === receiverId);
 
-    return prisma.$transaction(async (tx) => {
-      const sender = await tx.user.findUnique({
-        where: { id: senderId },
-        select: { chipBalance: true, username: true },
-      });
+        if (!sender) {
+          throw new AppError('Sender not found', 404, 'SENDER_NOT_FOUND');
+        }
 
-      if (!sender || sender.chipBalance < amount) {
-        throw new AppError('Insufficient chip balance', 400, 'INSUFFICIENT_BALANCE');
+        if (!receiver) {
+          throw new AppError('Receiver not found', 404, 'RECEIVER_NOT_FOUND');
+        }
+
+        if (sender.chipBalance < amount) {
+          throw new AppError('Insufficient chip balance', 400, 'INSUFFICIENT_BALANCE');
+        }
+
+        await tx.user.update({
+          where: { id: senderId },
+          data: { chipBalance: { decrement: amount } },
+        });
+
+        await tx.user.update({
+          where: { id: receiverId },
+          data: { chipBalance: { increment: amount } },
+        });
+
+        const transfer = await tx.chipTransfer.create({
+          data: {
+            senderId,
+            receiverId,
+            amount,
+            note,
+            status: 'COMPLETED',
+          },
+          include: {
+            sender: { select: { id: true, username: true } },
+            receiver: { select: { id: true, username: true } },
+          },
+        });
+
+        // Check transfer achievements (async, non-blocking)
+        achievementService.checkTransferAchievements(senderId).catch(console.error);
+
+        return {
+          transfer,
+          newBalance: sender.chipBalance - amount,
+        };
+      },
+      {
+        isolationLevel: 'Serializable',
       }
-
-      await tx.user.update({
-        where: { id: senderId },
-        data: { chipBalance: { decrement: amount } },
-      });
-
-      await tx.user.update({
-        where: { id: receiverId },
-        data: { chipBalance: { increment: amount } },
-      });
-
-      const transfer = await tx.chipTransfer.create({
-        data: {
-          senderId,
-          receiverId,
-          amount,
-          note,
-          status: 'COMPLETED',
-        },
-        include: {
-          sender: { select: { id: true, username: true } },
-          receiver: { select: { id: true, username: true } },
-        },
-      });
-
-      const updatedSender = await tx.user.findUnique({
-        where: { id: senderId },
-        select: { chipBalance: true },
-      });
-
-      return {
-        transfer,
-        newBalance: updatedSender?.chipBalance,
-      };
-    });
+    );
   }
 
   async getTransfers(userId: string, page = 1, limit = 20) {

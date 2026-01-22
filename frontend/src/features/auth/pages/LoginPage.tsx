@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { authApi } from '@/services/api/auth';
 import { useAuthStore } from '@/stores/authStore';
 import { staggerContainer, staggerItem } from '@/components/animations/variants';
+import { FallingCards3D } from '@/components/effects/FallingCards3D';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -17,14 +18,6 @@ const loginSchema = z.object({
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
-
-// Floating card suit symbols
-const cardSuits = [
-  { symbol: '\u2660', x: '15%', y: '10%', delay: 0 },    // Spade
-  { symbol: '\u2665', x: '85%', y: '15%', delay: 0.5, isRed: true },  // Heart
-  { symbol: '\u2666', x: '10%', y: '75%', delay: 1, isRed: true },    // Diamond
-  { symbol: '\u2663', x: '80%', y: '80%', delay: 1.5 },  // Club
-];
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -58,36 +51,15 @@ export function LoginPage() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      {/* 3D Falling Cards Background */}
+      <FallingCards3D className="absolute inset-0 opacity-40" cardCount={12} />
+
       {/* Background Texture & Effects */}
       <div className="absolute inset-0 felt-texture opacity-30 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--color-emerald-950)] to-black/80 pointer-events-none" />
-      
+
       {/* Animated Light Beams */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-[500px] bg-[var(--color-emerald-500)]/20 blur-[100px] rounded-full opacity-50 pointer-events-none" />
-
-      {/* Floating card suit symbols */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {cardSuits.map((suit, i) => (
-          <motion.div
-            key={i}
-            className={`absolute text-6xl font-display ${suit.isRed ? 'text-[var(--color-card-red)]/10' : 'text-zinc-800/30'}`}
-            style={{ left: suit.x, top: suit.y }}
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 5, -5, 0],
-              opacity: [0.1, 0.3, 0.1]
-            }}
-            transition={{
-              duration: 5 + i,
-              repeat: Infinity,
-              delay: suit.delay,
-              ease: 'easeInOut'
-            }}
-          >
-            {suit.symbol}
-          </motion.div>
-        ))}
-      </div>
 
       {/* Content */}
       <div className="relative w-full max-w-sm mx-auto z-10">

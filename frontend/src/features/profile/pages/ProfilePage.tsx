@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { usersApi } from '@/services/api/users';
 import { formatChips, formatDate, cn } from '@/lib/utils';
-import { pageTransition, staggerContainer, staggerItem } from '@/components/animations/variants';
+import { pageTransition } from '@/components/animations/variants';
 import { EditProfileSheet } from '../components/EditProfileSheet';
+import { ProfileAchievementsBadges } from '@/features/achievements/components/ProfileAchievementsBadges';
 
 export function ProfilePage() {
   const navigate = useNavigate();
@@ -131,19 +132,15 @@ export function ProfilePage() {
           <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-widest pl-1 mb-4">
             Game Statistics
           </h3>
-          <motion.div
-            className="space-y-3"
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-          >
+          <div className="space-y-3">
             {gameStats.map((stat) => (
               <motion.div
                 key={stat.label}
-                variants={staggerItem}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
                 className="rounded-xl bg-white/5 border border-white/10 p-4"
                 whileHover={{ scale: 1.01, borderColor: 'rgba(255, 255, 255, 0.15)' }}
-                transition={{ duration: 0.2 }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -158,7 +155,7 @@ export function ProfilePage() {
                 </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
 
         {/* Transfer Stats */}
@@ -166,19 +163,15 @@ export function ProfilePage() {
           <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-widest pl-1 mb-4">
             Transfer Activity
           </h3>
-          <motion.div
-            className="space-y-3"
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-          >
+          <div className="space-y-3">
             {transferStats.map((stat) => (
               <motion.div
                 key={stat.label}
-                variants={staggerItem}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
                 className="rounded-xl bg-white/5 border border-white/10 p-4"
                 whileHover={{ scale: 1.01, borderColor: 'rgba(255, 255, 255, 0.15)' }}
-                transition={{ duration: 0.2 }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -196,8 +189,11 @@ export function ProfilePage() {
                 </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
+
+        {/* Achievements */}
+        <ProfileAchievementsBadges />
 
         {/* Logout */}
         <motion.div

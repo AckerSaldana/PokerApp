@@ -3,14 +3,14 @@ import { Avatar } from '@/components/ui/Avatar';
 import { formatChips } from '@/lib/utils';
 import type { LeaderboardEntry } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { staggerItem } from '@/components/animations/variants';
 
 interface LeaderboardItemProps {
   player: LeaderboardEntry;
   index: number;
+  onPlayerTap?: (playerId: string, playerName: string) => void;
 }
 
-export function LeaderboardItem({ player }: LeaderboardItemProps) {
+export function LeaderboardItem({ player, onPlayerTap }: LeaderboardItemProps) {
   const positive = player.totalWinnings >= 0;
 
   return (
@@ -19,11 +19,15 @@ export function LeaderboardItem({ player }: LeaderboardItemProps) {
         'relative flex items-center gap-4 p-4',
         'bg-white/5 rounded-xl',
         'border border-white/10',
-        'transition-colors duration-200'
+        'transition-colors duration-200',
+        onPlayerTap && 'cursor-pointer'
       )}
-      variants={staggerItem}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
       whileHover={{ scale: 1.01, borderColor: 'rgba(255, 255, 255, 0.15)' }}
-      transition={{ duration: 0.2 }}
+      whileTap={onPlayerTap ? { scale: 0.98 } : undefined}
+      onClick={() => onPlayerTap?.(player.userId, player.username)}
     >
       {/* Rank badge */}
       <div

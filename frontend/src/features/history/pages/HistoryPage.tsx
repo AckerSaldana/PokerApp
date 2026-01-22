@@ -7,13 +7,14 @@ import { Avatar } from '@/components/ui/Avatar';
 import { balanceApi } from '@/services/api/balance';
 import { formatChips, formatRelativeTime, cn } from '@/lib/utils';
 import { SkeletonListItem } from '@/components/ui/Skeleton';
-import { pageTransition, staggerDepth, staggerDepthItem } from '@/components/animations/variants';
+import { pageTransition } from '@/components/animations/variants';
 
 export function HistoryPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['history'],
     queryFn: () => balanceApi.getHistory(1, 50),
+    refetchOnMount: 'always',
   });
 
   return (
@@ -52,18 +53,18 @@ export function HistoryPage() {
             </p>
           </motion.div>
         ) : (
-          <motion.div
-            className="space-y-4"
-            variants={staggerDepth}
-            initial="initial"
-            animate="animate"
-          >
+          <div className="space-y-4">
             {data.data.map((item) => {
               const isSent = item.type === 'sent';
               const otherUsername = item.otherUser.username;
 
               return (
-                <motion.div key={item.id} variants={staggerDepthItem}>
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <Card variant="glass" className="p-4 group hover:border-zinc-700/50 transition-all duration-300">
                     {/* Hover glow effect */}
                     <div className={cn(
@@ -143,7 +144,7 @@ export function HistoryPage() {
                 </motion.div>
               );
             })}
-          </motion.div>
+          </div>
         )}
       </div>
     </motion.div>

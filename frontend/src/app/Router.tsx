@@ -9,6 +9,7 @@ import { LeaderboardPage } from '@/features/leaderboard/pages/LeaderboardPage';
 import { TransferPage } from '@/features/transfer/pages/TransferPage';
 import { HistoryPage } from '@/features/history/pages/HistoryPage';
 import { ProfilePage } from '@/features/profile/pages/ProfilePage';
+import { AchievementsPage } from '@/features/achievements/pages/AchievementsPage';
 import { GamesPage, JoinGamePage, ActiveGamePage } from '@/features/game';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -69,6 +70,7 @@ export function AppRouter() {
             <Route path="/transfer" element={<TransferPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/game" element={<GamesPage />} />
             <Route path="/game/join" element={<JoinGamePage />} />
             <Route path="/game/:id" element={<ActiveGamePage />} />
