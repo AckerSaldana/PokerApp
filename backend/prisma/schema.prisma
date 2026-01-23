@@ -48,6 +48,7 @@ model GameSession {
   hostId    String
   date      DateTime
   notes     String?
+  blind     Int      @default(10)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

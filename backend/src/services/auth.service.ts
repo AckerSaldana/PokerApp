@@ -90,6 +90,7 @@ export class AuthService {
         email: user.email,
         username: user.username,
         chipBalance: user.chipBalance,
+        avatarData: user.avatarData,
         createdAt: user.createdAt,
       },
       accessToken,
@@ -156,6 +157,7 @@ export class AuthService {
         username: true,
         chipBalance: true,
         lastWeeklyCredit: true,
+        avatarData: true,
         createdAt: true,
       },
     });

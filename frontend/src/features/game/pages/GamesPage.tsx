@@ -7,12 +7,14 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { gamesApi } from '@/services/api/games';
 import { pageTransition } from '@/components/animations/variants';
 import { GameCard } from '../components/GameCard';
+import { CreateGameModal } from '../components/CreateGameModal';
 import { cn } from '@/lib/utils';
 
 export function GamesPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [copiedCode, setCopiedCode] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Check for active game
   const { data: activeGame } = useQuery({
@@ -32,9 +34,11 @@ export function GamesPage() {
 
   // Create game mutation
   const createGameMutation = useMutation({
-    mutationFn: () => gamesApi.create({ name: 'Poker Night' }),
+    mutationFn: (data: { name: string; blind: number }) =>
+      gamesApi.create({ name: data.name, blind: data.blind }),
     onSuccess: (game) => {
       queryClient.invalidateQueries({ queryKey: ['activeGame'] });
+      setShowCreateModal(false);
       navigate(`/game/${game.id}`);
     },
     onError: (error) => {
@@ -116,7 +120,7 @@ export function GamesPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              onClick={() => createGameMutation.mutate()}
+              onClick={() => setShowCreateModal(true)}
               disabled={createGameMutation.isPending}
               className={cn(
                 'flex flex-col items-center gap-2 p-5 rounded-2xl',
@@ -128,9 +132,7 @@ export function GamesPage() {
               <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
                 <Plus className="w-6 h-6 text-white" />
               </div>
-              <span className="text-white font-semibold">
-                {createGameMutation.isPending ? 'Creating...' : 'Start Game'}
-              </span>
+              <span className="text-white font-semibold">Start Game</span>
             </motion.button>
 
             <motion.button
@@ -201,6 +203,13 @@ export function GamesPage() {
           )}
         </div>
       </div>
+
+      <CreateGameModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onConfirm={(data) => createGameMutation.mutate(data)}
+        isPending={createGameMutation.isPending}
+      />
     </motion.div>
   );
 }

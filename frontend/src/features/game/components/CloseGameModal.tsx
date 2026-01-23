@@ -168,7 +168,7 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
                         key={participant.id}
                         className="flex items-center gap-3 p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/50 opacity-70"
                       >
-                        <Avatar name={participant.user.username} size="sm" />
+                        <Avatar src={participant.user.avatarData || undefined} name={participant.user.username} size="sm" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-zinc-400 truncate">
                             {participant.user.username}
@@ -215,7 +215,7 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
                         key={participant.id}
                         className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
                       >
-                        <Avatar name={participant.user.username} size="sm" />
+                        <Avatar src={participant.user.avatarData || undefined} name={participant.user.username} size="sm" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-white truncate">
                             {participant.user.username}

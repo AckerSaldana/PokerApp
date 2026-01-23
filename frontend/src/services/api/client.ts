@@ -35,6 +35,7 @@ apiClient.interceptors.response.use(
         const refreshToken = useAuthStore.getState().refreshToken;
         if (!refreshToken) {
           useAuthStore.getState().logout();
+          window.location.href = '/login';
           return Promise.reject(error);
         }
 
@@ -49,6 +50,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch {
         useAuthStore.getState().logout();
+        window.location.href = '/login';
         return Promise.reject(error);
       }
     }

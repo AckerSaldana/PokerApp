@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const createGameSchema = z.object({
   name: z.string().max(100, 'Name must be at most 100 characters').optional(),
   notes: z.string().max(500, 'Notes must be at most 500 characters').optional(),
+  blind: z.number().int().min(1, 'Blind must be at least 1').max(1000, 'Blind must be at most 1000').optional(),
 });
 
 export const updateGameSchema = z.object({

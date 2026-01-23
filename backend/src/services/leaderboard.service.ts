@@ -6,6 +6,7 @@ export class LeaderboardService {
       select: {
         id: true,
         username: true,
+        avatarData: true,
         chipBalance: true,
         gameSessions: {
           select: {
@@ -31,6 +32,7 @@ export class LeaderboardService {
         return {
           userId: user.id,
           username: user.username,
+          avatarData: user.avatarData,
           chipBalance: user.chipBalance,
           ...stats,
           winRate: stats.gamesPlayed > 0 ? stats.wins / stats.gamesPlayed : 0,
@@ -52,6 +54,7 @@ export class LeaderboardService {
       select: {
         id: true,
         username: true,
+        avatarData: true,
         chipBalance: true,
         gameSessions: {
           where: {
@@ -77,6 +80,7 @@ export class LeaderboardService {
         return {
           userId: user.id,
           username: user.username,
+          avatarData: user.avatarData,
           chipBalance: user.chipBalance,
           totalWinnings,
           gamesPlayed,
@@ -101,6 +105,7 @@ export class LeaderboardService {
       select: {
         id: true,
         username: true,
+        avatarData: true,
         chipBalance: true,
         gameSessions: {
           where: {
@@ -126,6 +131,7 @@ export class LeaderboardService {
         return {
           userId: user.id,
           username: user.username,
+          avatarData: user.avatarData,
           chipBalance: user.chipBalance,
           totalWinnings,
           gamesPlayed,

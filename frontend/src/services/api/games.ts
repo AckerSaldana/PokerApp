@@ -4,6 +4,7 @@ import type { GameSession, ApiResponse } from '@/lib/types';
 interface CreateGameInput {
   name?: string;
   notes?: string;
+  blind?: number;
 }
 
 interface CloseGameResult {

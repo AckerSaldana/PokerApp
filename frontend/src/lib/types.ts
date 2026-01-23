@@ -17,6 +17,7 @@ export interface LeaderboardEntry {
   rank: number;
   userId: string;
   username: string;
+  avatarData?: string | null;
   chipBalance: number;
   totalWinnings: number;
   gamesPlayed: number;
@@ -32,8 +33,8 @@ export interface Transfer {
   note?: string;
   status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
   createdAt: string;
-  sender: { id: string; username: string };
-  receiver: { id: string; username: string };
+  sender: { id: string; username: string; avatarData?: string | null };
+  receiver: { id: string; username: string; avatarData?: string | null };
 }
 
 export interface GameSession {
@@ -43,9 +44,10 @@ export interface GameSession {
   hostId: string;
   date: string;
   notes?: string;
+  blind: number;
   isActive: boolean;
   createdAt: string;
-  host: { id: string; username: string };
+  host: { id: string; username: string; avatarData?: string | null };
   participants: GameParticipant[];
 }
 
@@ -59,7 +61,7 @@ export interface GameParticipant {
   joinedAt: string;
   cashedOutAt: string | null;
   leaveRequestedAt: string | null;
-  user: { id: string; username: string };
+  user: { id: string; username: string; avatarData?: string | null };
 }
 
 export interface BalanceInfo {
@@ -108,6 +110,7 @@ export interface TransferLeaderboardEntry {
   rank: number;
   userId: string;
   username: string;
+  avatarData?: string | null;
   totalSent: number;
   totalReceived: number;
   totalTransferred: number;

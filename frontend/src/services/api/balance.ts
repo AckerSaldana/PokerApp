@@ -6,7 +6,7 @@ interface HistoryItem {
   type: 'sent' | 'received';
   amount: number;
   note?: string;
-  otherUser: { id: string; username: string };
+  otherUser: { id: string; username: string; avatarData?: string | null };
   createdAt: string;
 }
 

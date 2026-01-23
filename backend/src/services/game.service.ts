@@ -34,6 +34,7 @@ export class GameService {
           hostId,
           date: new Date(),
           notes: data.notes,
+          blind: data.blind ?? 10,
         },
       });
 
@@ -62,10 +63,10 @@ export class GameService {
     const [games, total] = await Promise.all([
       prisma.gameSession.findMany({
         include: {
-          host: { select: { id: true, username: true } },
+          host: { select: { id: true, username: true, avatarData: true } },
           participants: {
             include: {
-              user: { select: { id: true, username: true } },
+              user: { select: { id: true, username: true, avatarData: true } },
             },
           },
         },
@@ -83,10 +84,10 @@ export class GameService {
     const game = await prisma.gameSession.findUnique({
       where: { id: gameId },
       include: {
-        host: { select: { id: true, username: true } },
+        host: { select: { id: true, username: true, avatarData: true } },
         participants: {
           include: {
-            user: { select: { id: true, username: true } },
+            user: { select: { id: true, username: true, avatarData: true } },
           },
           orderBy: { buyIn: 'desc' },
         },
@@ -104,10 +105,10 @@ export class GameService {
     const game = await prisma.gameSession.findUnique({
       where: { joinCode: joinCode.toUpperCase() },
       include: {
-        host: { select: { id: true, username: true } },
+        host: { select: { id: true, username: true, avatarData: true } },
         participants: {
           include: {
-            user: { select: { id: true, username: true } },
+            user: { select: { id: true, username: true, avatarData: true } },
           },
           orderBy: { buyIn: 'desc' },
         },
@@ -134,10 +135,10 @@ export class GameService {
       include: {
         gameSession: {
           include: {
-            host: { select: { id: true, username: true } },
+            host: { select: { id: true, username: true, avatarData: true } },
             participants: {
               include: {
-                user: { select: { id: true, username: true } },
+                user: { select: { id: true, username: true, avatarData: true } },
               },
               orderBy: { buyIn: 'desc' },
             },
@@ -597,10 +598,10 @@ export class GameService {
         include: {
           gameSession: {
             include: {
-              host: { select: { id: true, username: true } },
+              host: { select: { id: true, username: true, avatarData: true } },
               participants: {
                 include: {
-                  user: { select: { id: true, username: true } },
+                  user: { select: { id: true, username: true, avatarData: true } },
                 },
               },
             },

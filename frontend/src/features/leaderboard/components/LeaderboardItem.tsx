@@ -41,6 +41,7 @@ export function LeaderboardItem({ player, onPlayerTap }: LeaderboardItemProps) {
 
       {/* Avatar */}
       <Avatar
+        src={player.avatarData || undefined}
         name={player.username}
         size="md"
       />

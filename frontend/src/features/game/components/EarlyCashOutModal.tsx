@@ -82,7 +82,7 @@ export function EarlyCashOutModal({
 
             {/* Player Info */}
             <div className="flex items-center gap-3 p-4 bg-zinc-800/50 rounded-xl mb-4">
-              <Avatar name={participant.user.username} size="md" />
+              <Avatar src={participant.user.avatarData || undefined} name={participant.user.username} size="md" />
               <div>
                 <p className="font-semibold text-white">
                   {participant.user.username}

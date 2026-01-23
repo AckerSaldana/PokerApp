@@ -79,7 +79,7 @@ function TransferLeaderboardItem({
         {isTopThree ? <Trophy className="w-6 h-6 drop-shadow-sm" /> : rank}
       </motion.div>
 
-      <Avatar name={entry.username} size="md" className={cn(isTopThree && "ring-2 ring-[var(--color-gold-400)]/50 ring-offset-2 ring-offset-black")} />
+      <Avatar src={entry.avatarData || undefined} name={entry.username} size="md" className={cn(isTopThree && "ring-2 ring-[var(--color-gold-400)]/50 ring-offset-2 ring-offset-black")} />
 
       <div className="flex-1 min-w-0">
         <p className={cn("font-bold truncate text-base", isTopThree ? "text-[var(--color-gold-100)]" : "text-white")}>

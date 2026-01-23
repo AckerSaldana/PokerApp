@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Copy, Check, Users, Plus } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Users, Plus, HelpCircle } from 'lucide-react';
 import { gamesApi } from '@/services/api/games';
 import { balanceApi } from '@/services/api/balance';
 import { useAuthStore } from '@/stores/authStore';
@@ -11,6 +11,7 @@ import { ParticipantRow } from '../components/ParticipantRow';
 import { RebuyModal } from '../components/RebuyModal';
 import { CloseGameModal } from '../components/CloseGameModal';
 import { EarlyCashOutModal } from '../components/EarlyCashOutModal';
+import { PokerHandsModal } from '../components/PokerHandsModal';
 import { PlayerProfileSheet } from '@/features/profile/components/PlayerProfileSheet';
 import { GameNotificationChecker } from '../components/GameNotificationChecker';
 import { cn, formatChips } from '@/lib/utils';
@@ -28,6 +29,7 @@ export function ActiveGamePage() {
   const [showEarlyCashOutModal, setShowEarlyCashOutModal] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<GameParticipant | null>(null);
   const [selectedPlayerProfile, setSelectedPlayerProfile] = useState<{ id: string; name: string } | null>(null);
+  const [showHandsModal, setShowHandsModal] = useState(false);
 
   const handlePlayerTap = (playerId: string, playerName: string) => {
     setSelectedPlayerProfile({ id: playerId, name: playerName });
@@ -160,7 +162,16 @@ export function ActiveGamePage() {
               Hosted by {game.host.username}
               {isHost && <span className="text-emerald-400"> (You)</span>}
             </p>
+            <p className="text-zinc-500 text-sm mt-0.5">
+              Blinds: {game.blind} / {game.blind * 2}
+            </p>
           </div>
+          <button
+            onClick={() => setShowHandsModal(true)}
+            className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
+          >
+            <HelpCircle className="w-5 h-5 text-zinc-400" />
+          </button>
         </div>
       </div>
 
@@ -377,6 +388,12 @@ export function ActiveGamePage() {
         onClose={() => setSelectedPlayerProfile(null)}
         playerId={selectedPlayerProfile?.id || null}
         playerName={selectedPlayerProfile?.name}
+      />
+
+      {/* Poker Hands Reference */}
+      <PokerHandsModal
+        isOpen={showHandsModal}
+        onClose={() => setShowHandsModal(false)}
       />
 
       {/* Game Notifications */}

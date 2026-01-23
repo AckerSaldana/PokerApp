@@ -71,6 +71,7 @@ function Podium({ players, onPlayerTap }: PodiumProps) {
                 'overflow-hidden'
               )}>
                 <Avatar
+                  src={player.avatarData || undefined}
                   name={player.username}
                   size={isFirst ? 'xl' : 'lg'}
                   className="w-full h-full"

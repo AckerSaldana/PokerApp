@@ -95,7 +95,7 @@ export function TransferHistoryWithUser() {
               )}
               whileTap={{ scale: 0.95 }}
             >
-              <Avatar name={user.username} size="lg" className={cn("transition-transform group-hover:scale-110", selectedUser?.id === user.id && "ring-2 ring-[var(--color-emerald-500)] ring-offset-2 ring-offset-black")} />
+              <Avatar src={user.avatarData || undefined} name={user.username} size="lg" className={cn("transition-transform group-hover:scale-110", selectedUser?.id === user.id && "ring-2 ring-[var(--color-emerald-500)] ring-offset-2 ring-offset-black")} />
               <p className={cn(
                 "text-xs mt-2 truncate w-full text-center font-medium transition-colors",
                 selectedUser?.id === user.id ? "text-[var(--color-emerald-400)]" : "text-[var(--text-secondary)] group-hover:text-white"
@@ -126,11 +126,11 @@ export function TransferHistoryWithUser() {
 
                 <div className="flex items-center justify-between mb-6 border-b border-[var(--glass-border)] pb-4">
                   <div className="flex items-center gap-4">
-                    <Avatar name={currentUser?.username || ''} size="sm" className="ring-1 ring-white/20" />
+                    <Avatar src={currentUser?.avatarData || undefined} name={currentUser?.username || ''} size="sm" className="ring-1 ring-white/20" />
                     <div className="h-px flex-1 w-12 bg-gradient-to-r from-transparent via-[var(--color-gold-500)]/50 to-transparent relative">
                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--color-gold-500)] w-1.5 h-1.5 rounded-full shadow-[0_0_5px_var(--color-gold-500)]" />
                     </div>
-                    <Avatar name={selectedUser.username} size="sm" className="ring-1 ring-white/20" />
+                    <Avatar src={selectedUser.avatarData || undefined} name={selectedUser.username} size="sm" className="ring-1 ring-white/20" />
                   </div>
                   <button
                     onClick={() => setSelectedUser(null)}

@@ -94,6 +94,7 @@ export function HistoryPage() {
                       {/* Avatar with ring */}
                       <div className="relative">
                         <Avatar
+                          src={item.otherUser.avatarData || undefined}
                           name={otherUsername}
                           size="md"
                           className={cn(

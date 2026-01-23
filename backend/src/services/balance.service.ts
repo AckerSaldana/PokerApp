@@ -69,8 +69,8 @@ export class BalanceService {
           OR: [{ senderId: userId }, { receiverId: userId }],
         },
         include: {
-          sender: { select: { id: true, username: true } },
-          receiver: { select: { id: true, username: true } },
+          sender: { select: { id: true, username: true, avatarData: true } },
+          receiver: { select: { id: true, username: true, avatarData: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip,

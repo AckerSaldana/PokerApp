@@ -66,8 +66,8 @@ export class TransferService {
             status: 'COMPLETED',
           },
           include: {
-            sender: { select: { id: true, username: true } },
-            receiver: { select: { id: true, username: true } },
+            sender: { select: { id: true, username: true, avatarData: true } },
+            receiver: { select: { id: true, username: true, avatarData: true } },
           },
         });
 
@@ -198,6 +198,7 @@ export class TransferService {
       select: {
         id: true,
         username: true,
+        avatarData: true,
         transfersSent: {
           select: { amount: true },
         },
@@ -216,6 +217,7 @@ export class TransferService {
         return {
           userId: user.id,
           username: user.username,
+          avatarData: user.avatarData,
           totalSent,
           totalReceived,
           totalTransferred,

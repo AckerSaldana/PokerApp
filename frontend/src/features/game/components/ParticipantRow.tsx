@@ -45,7 +45,7 @@ export function ParticipantRow({
     >
       {/* Avatar */}
       <div className="relative">
-        <Avatar name={username} size="md" />
+        <Avatar src={participant.user?.avatarData || undefined} name={username} size="md" />
         {isHost && (
           <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
             <Crown className="w-3 h-3 text-amber-900" />
