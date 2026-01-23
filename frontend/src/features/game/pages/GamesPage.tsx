@@ -17,7 +17,7 @@ export function GamesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Check for active game
-  const { data: activeGame } = useQuery({
+  const { data: activeGame, isLoading: loadingActive } = useQuery({
     queryKey: ['activeGame'],
     queryFn: () => gamesApi.getActive(),
     staleTime: 10_000,
@@ -66,8 +66,19 @@ export function GamesPage() {
       <PageHeader title="Game" subtitle="Start or join a poker night" />
 
       <div className="px-6 space-y-6">
+        {/* Loading Skeleton */}
+        {loadingActive && (
+          <div className="space-y-4 animate-pulse">
+            <div className="h-48 bg-white/5 rounded-2xl border border-white/10" />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="h-28 bg-white/5 rounded-2xl" />
+              <div className="h-28 bg-white/5 rounded-2xl" />
+            </div>
+          </div>
+        )}
+
         {/* Active Game Card */}
-        {activeGame && (
+        {!loadingActive && activeGame && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -114,7 +125,7 @@ export function GamesPage() {
         )}
 
         {/* Action Buttons */}
-        {!activeGame && (
+        {!loadingActive && !activeGame && (
           <div className="grid grid-cols-2 gap-3">
             <motion.button
               initial={{ opacity: 0, y: 10 }}

@@ -11,6 +11,8 @@ import { authApi } from '@/services/api/auth';
 import { useAuthStore } from '@/stores/authStore';
 import { staggerContainer, staggerItem } from '@/components/animations/variants';
 import { FallingCards3D } from '@/components/effects/FallingCards3D';
+import { PixelCard } from '@/components/effects/PixelCard';
+import type { Suit, Value } from '@/components/effects/pixelCardTexture';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -68,16 +70,52 @@ export function LoginPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Logo Section */}
+          {/* Poker Hand Logo */}
           <div className="flex flex-col items-center mb-12">
-            <motion.img
-              src="/PokerLogo.svg"
-              alt="Poker Night"
-              className="w-24 h-24 mb-6 drop-shadow-[0_2px_20px_rgba(251,191,36,0.3)]"
-              initial={{ scale: 0.8, rotate: -10 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.2 }}
-            />
+            <div className="relative flex items-end justify-center h-28 mb-6">
+              {/* Glow effect under cards */}
+              <motion.div
+                className="absolute bottom-0 w-40 h-12 bg-[var(--color-gold-500)]/20 blur-xl rounded-full"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: [0, 0.6, 0.4], scale: [0.5, 1.1, 1] }}
+                transition={{ duration: 1.5, delay: 0.8, times: [0, 0.6, 1] }}
+              />
+
+              {([
+                { suit: 'spades' as Suit, value: '10' as Value, rotate: -24, x: -40, floatDelay: 0 },
+                { suit: 'spades' as Suit, value: 'J' as Value, rotate: -12, x: -20, floatDelay: 0.3 },
+                { suit: 'spades' as Suit, value: 'Q' as Value, rotate: 0, x: 0, floatDelay: 0.6 },
+                { suit: 'spades' as Suit, value: 'K' as Value, rotate: 12, x: 20, floatDelay: 0.9 },
+                { suit: 'spades' as Suit, value: 'A' as Value, rotate: 24, x: 40, floatDelay: 1.2 },
+              ]).map((card, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute"
+                  initial={{ x: 0, y: 80, opacity: 0, rotate: 0, scale: 0.6 }}
+                  animate={{
+                    x: card.x,
+                    y: [0, -4, 0],
+                    opacity: 1,
+                    rotate: 0,
+                    scale: 1,
+                  }}
+                  transition={{
+                    x: { type: 'spring', stiffness: 120, damping: 14, delay: 0.4 + i * 0.1 },
+                    y: {
+                      delay: 1.2 + card.floatDelay,
+                      duration: 2.5,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                      ease: 'easeInOut',
+                    },
+                    opacity: { duration: 0.3, delay: 0.3 + i * 0.1 },
+                    scale: { type: 'spring', stiffness: 150, damping: 12, delay: 0.4 + i * 0.1 },
+                  }}
+                >
+                  <PixelCard suit={card.suit} value={card.value} rotateZ={card.rotate} size={40} />
+                </motion.div>
+              ))}
+            </div>
 
             <motion.h1
               className="text-4xl font-display font-bold text-white text-center tracking-tight"
