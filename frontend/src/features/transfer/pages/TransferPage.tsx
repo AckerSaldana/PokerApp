@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, Send, History, Trophy, UserPlus, ChevronRight } from 'lucide-react';
@@ -123,58 +124,61 @@ export function TransferPage() {
               className="space-y-6"
             >
               {/* Premium success animation with particles */}
-              <AnimatePresence>
-                {success && (
-                  <motion.div
-                    className="fixed inset-0 z-50 flex items-center justify-center"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    {/* Backdrop with blur */}
-                    <div className="absolute inset-0 bg-zinc-950/90 backdrop-blur-xl" />
-
-                    {/* 3D Falling chips celebration */}
-                    <ChipsCelebration chipCount={30} />
-
-                    {/* Success content */}
+              {createPortal(
+                <AnimatePresence>
+                  {success && (
                     <motion.div
-                      className="relative flex flex-col items-center"
-                      variants={successPop}
-                      initial="initial"
-                      animate="animate"
+                      className="fixed inset-0 z-[9999] transform-gpu flex items-center justify-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
                     >
+                      {/* Backdrop with blur */}
+                      <div className="absolute inset-0 bg-zinc-950/90 backdrop-blur-xl" />
+
+                      {/* 3D Falling chips celebration */}
+                      <ChipsCelebration chipCount={30} />
+
+                      {/* Success content */}
                       <motion.div
-                        className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-emerald-600
-                                   rounded-full flex items-center justify-center mb-6
-                                   shadow-2xl shadow-emerald-500/50"
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 0.5, delay: 0.3 }}
+                        className="relative flex flex-col items-center"
+                        variants={successPop}
+                        initial="initial"
+                        animate="animate"
                       >
-                        <Check className="w-12 h-12 text-white" />
+                        <motion.div
+                          className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-emerald-600
+                                     rounded-full flex items-center justify-center mb-6
+                                     shadow-2xl shadow-emerald-500/50"
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 0.5, delay: 0.3 }}
+                        >
+                          <Check className="w-12 h-12 text-white" />
+                        </motion.div>
+
+                        <motion.p
+                          className="text-white text-2xl font-bold"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 }}
+                        >
+                          Transfer Sent!
+                        </motion.p>
+
+                        <motion.p
+                          className="text-emerald-400 text-lg mt-2"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.6 }}
+                        >
+                          ${amount} to {selectedUser?.username}
+                        </motion.p>
                       </motion.div>
-
-                      <motion.p
-                        className="text-white text-2xl font-bold"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                      >
-                        Transfer Sent!
-                      </motion.p>
-
-                      <motion.p
-                        className="text-emerald-400 text-lg mt-2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
-                      >
-                        ${amount} to {selectedUser?.username}
-                      </motion.p>
                     </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  )}
+                </AnimatePresence>,
+                document.body
+              )}
 
               {/* Recipient selector button */}
               <motion.button

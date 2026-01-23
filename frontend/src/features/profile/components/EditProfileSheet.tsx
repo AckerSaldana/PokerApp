@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X, Camera, User as UserIcon } from 'lucide-react';
@@ -103,7 +104,7 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
     updateMutation.mutate(updates);
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -113,7 +114,7 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] transform-gpu"
           />
 
           {/* Sheet */}
@@ -121,7 +122,7 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-0 left-0 right-0 z-[60] p-6 pb-28 bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
+            className="fixed bottom-0 left-0 right-0 z-[9999] transform-gpu p-6 pb-28 bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
@@ -220,6 +221,7 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

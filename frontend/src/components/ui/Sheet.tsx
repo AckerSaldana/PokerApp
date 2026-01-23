@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { sheetVariants, backdropVariants } from '@/components/animations/variants';
@@ -11,12 +12,12 @@ interface SheetProps {
 }
 
 export function Sheet({ isOpen, onClose, children, className }: SheetProps) {
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
           <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] transform-gpu"
             variants={backdropVariants}
             initial="initial"
             animate="animate"
@@ -25,7 +26,7 @@ export function Sheet({ isOpen, onClose, children, className }: SheetProps) {
           />
           <motion.div
             className={cn(
-              'fixed bottom-0 left-0 right-0 bg-zinc-900 rounded-t-3xl z-[70]',
+              'fixed bottom-0 left-0 right-0 bg-zinc-900 rounded-t-3xl z-[9999] transform-gpu',
               'pb-safe max-h-[85vh] overflow-hidden',
               className
             )}
@@ -49,6 +50,7 @@ export function Sheet({ isOpen, onClose, children, className }: SheetProps) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

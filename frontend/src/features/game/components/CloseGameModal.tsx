@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation } from '@tanstack/react-query';
 import { X, AlertCircle, Check, CheckCircle } from 'lucide-react';
@@ -66,7 +67,7 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
     setCashOuts((prev) => ({ ...prev, [userId]: numValue }));
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -76,7 +77,7 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] transform-gpu"
           />
 
           {/* Modal */}
@@ -84,19 +85,21 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-0 left-0 right-0 z-[60] max-h-[85vh] overflow-y-auto bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
+            className="fixed bottom-0 left-0 right-0 z-[9999] transform-gpu max-h-[90vh] flex flex-col bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
           >
-            <div className="p-6 pb-28">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white">End Game</h2>
-                <button
-                  onClick={onClose}
-                  className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
-                >
-                  <X className="w-5 h-5 text-zinc-400" />
-                </button>
-              </div>
+            {/* Header - sticky */}
+            <div className="flex items-center justify-between p-6 pb-4 flex-shrink-0">
+              <h2 className="text-xl font-bold text-white">End Game</h2>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
+                <X className="w-5 h-5 text-zinc-400" />
+              </button>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto px-6 min-h-0">
 
               {/* Pot Breakdown Summary */}
               <div className="bg-zinc-800/50 rounded-xl p-4 mb-6">
@@ -252,7 +255,10 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
                 </div>
               </div>
 
-              {/* Confirm button */}
+            </div>
+
+            {/* Confirm button - sticky bottom */}
+            <div className="flex-shrink-0 p-6 pt-4 pb-8">
               <button
                 onClick={() => closeMutation.mutate()}
                 disabled={closeMutation.isPending || !isBalanced}
@@ -269,6 +275,7 @@ export function CloseGameModal({ isOpen, onClose, game, onSuccess }: CloseGameMo
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

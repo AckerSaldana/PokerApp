@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Coins } from 'lucide-react';
 import { cn, formatChips } from '@/lib/utils';
@@ -23,7 +24,7 @@ export function RebuyModal({ isOpen, onClose, onConfirm, balance, isPending }: R
     }
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -33,7 +34,7 @@ export function RebuyModal({ isOpen, onClose, onConfirm, balance, isPending }: R
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] transform-gpu"
           />
 
           {/* Modal */}
@@ -41,7 +42,7 @@ export function RebuyModal({ isOpen, onClose, onConfirm, balance, isPending }: R
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-0 left-0 right-0 z-[60] p-6 pb-28 bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
+            className="fixed bottom-0 left-0 right-0 z-[9999] transform-gpu p-6 pb-28 bg-zinc-900 rounded-t-3xl border-t border-zinc-800"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -117,6 +118,7 @@ export function RebuyModal({ isOpen, onClose, onConfirm, balance, isPending }: R
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
