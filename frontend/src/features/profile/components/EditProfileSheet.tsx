@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X, Camera, User as UserIcon } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 import { Avatar } from '@/components/ui/Avatar';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -24,6 +25,7 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
   const [username, setUsername] = useState(user.username);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarData || null);
   const [error, setError] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const updateMutation = useMutation({
     mutationFn: (data: { username?: string; avatarData?: string | null }) =>
@@ -39,7 +41,7 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -49,21 +51,52 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
       return;
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      setError('Image must be smaller than 2MB');
+    // Validate file size (max 10MB before compression)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image is too large. Please select an image smaller than 10MB');
       return;
     }
 
     setError(null);
+    setIsCompressing(true);
 
-    // Convert to base64
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string;
-      setAvatarPreview(base64);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Compression options
+      const options = {
+        maxSizeMB: 0.5,          // Compress to 500KB max
+        maxWidthOrHeight: 800,   // Reasonable for profile pictures
+        useWebWorker: true,      // Use Web Worker for better performance
+        fileType: 'image/jpeg',  // Convert all to JPEG for consistency
+        initialQuality: 0.8      // Good balance of quality/size
+      };
+
+      // Compress the image
+      const compressedFile = await imageCompression(file, options);
+
+      // Validate final size (should be under 2MB base64)
+      if (compressedFile.size > 2 * 1024 * 1024) {
+        setError('Unable to compress image to acceptable size. Please try a different image');
+        setIsCompressing(false);
+        return;
+      }
+
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setAvatarPreview(base64);
+        setIsCompressing(false);
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file');
+        setIsCompressing(false);
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (err) {
+      console.error('Image compression error:', err);
+      setError('Failed to process image. Please try a different image');
+      setIsCompressing(false);
+    }
   };
 
   const handleRemoveAvatar = () => {
@@ -139,7 +172,11 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
             <div className="flex flex-col items-center mb-8">
               <div className="relative">
                 <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-zinc-700">
-                  {avatarPreview ? (
+                  {isCompressing ? (
+                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                    </div>
+                  ) : avatarPreview ? (
                     <img
                       src={avatarPreview}
                       alt="Avatar preview"
@@ -151,7 +188,8 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
                 </div>
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 p-2 rounded-full bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-lg"
+                  disabled={isCompressing}
+                  className="absolute bottom-0 right-0 p-2 rounded-full bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Camera className="w-4 h-4 text-white" />
                 </button>
@@ -166,21 +204,27 @@ export function EditProfileSheet({ isOpen, onClose, user }: EditProfileSheetProp
               />
 
               <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
-                >
-                  Change photo
-                </button>
-                {avatarPreview && (
+                {isCompressing ? (
+                  <span className="text-sm text-emerald-400">Compressing image...</span>
+                ) : (
                   <>
-                    <span className="text-zinc-600">|</span>
                     <button
-                      onClick={handleRemoveAvatar}
-                      className="text-sm text-zinc-400 hover:text-zinc-300 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
                     >
-                      Remove
+                      Change photo
                     </button>
+                    {avatarPreview && (
+                      <>
+                        <span className="text-zinc-600">|</span>
+                        <button
+                          onClick={handleRemoveAvatar}
+                          className="text-sm text-zinc-400 hover:text-zinc-300 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
