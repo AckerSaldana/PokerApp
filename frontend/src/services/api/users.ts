@@ -1,6 +1,13 @@
 import { apiClient } from './client';
 import type { User, UserStats, ApiResponse } from '@/lib/types';
 
+export interface ProfitDataPoint {
+  date: string;
+  gameName: string | null;
+  netResult: number;
+  cumulativeProfit: number;
+}
+
 export const usersApi = {
   getAll: async () => {
     const response = await apiClient.get<ApiResponse<User[]>>('/users');
@@ -14,6 +21,13 @@ export const usersApi = {
 
   getStats: async (id: string) => {
     const response = await apiClient.get<ApiResponse<UserStats>>(`/users/${id}/stats`);
+    return response.data.data!;
+  },
+
+  getProfitHistory: async (id: string, limit = 30) => {
+    const response = await apiClient.get<ApiResponse<ProfitDataPoint[]>>(`/users/${id}/profit-history`, {
+      params: { limit },
+    });
     return response.data.data!;
   },
 

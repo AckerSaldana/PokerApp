@@ -114,6 +114,36 @@ export class UserService {
     };
   }
 
+  async getProfitHistory(userId: string, limit = 30) {
+    const games = await prisma.gameSessionParticipant.findMany({
+      where: {
+        userId,
+        gameSession: { isActive: false },
+      },
+      include: {
+        gameSession: {
+          select: { date: true, name: true },
+        },
+      },
+      orderBy: {
+        gameSession: { date: 'asc' },
+      },
+      take: limit,
+    });
+
+    // Calculate running cumulative profit
+    let cumulativeProfit = 0;
+    return games.map((g) => {
+      cumulativeProfit += g.netResult;
+      return {
+        date: g.gameSession.date,
+        gameName: g.gameSession.name,
+        netResult: g.netResult,
+        cumulativeProfit,
+      };
+    });
+  }
+
   async updateProfile(userId: string, data: { username?: string; avatarData?: string | null }) {
     if (data.username) {
       const existing = await prisma.user.findFirst({

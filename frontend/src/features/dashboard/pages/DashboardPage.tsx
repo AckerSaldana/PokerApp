@@ -3,6 +3,9 @@ import { useAuthStore } from '@/stores/authStore';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ChipBalanceCard } from '../components/ChipBalanceCard';
 import { QuickStats } from '../components/QuickStats';
+import { DailyRewardCard } from '../components/DailyRewardCard';
+import { LuckySpinButton } from '../components/LuckySpinButton';
+import { ProfitChart } from '../components/ProfitChart';
 import { pageTransition } from '@/components/animations/variants';
 import { Skeleton } from '@/components/ui/Skeleton';
 
@@ -32,10 +35,20 @@ export function DashboardPage() {
         />
       )}
 
-      <div className="px-6 space-y-8">
+      <div className="px-6 space-y-6">
+        {/* Balance */}
         <ChipBalanceCard />
-        <div>
-          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-widest pl-1 mb-4">Performance</h2>
+
+        {/* Daily Rewards Section */}
+        <div className="space-y-3">
+          <DailyRewardCard />
+          <LuckySpinButton />
+        </div>
+
+        {/* Performance Section */}
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-widest pl-1">Performance</h2>
+          <ProfitChart />
           <QuickStats />
         </div>
       </div>

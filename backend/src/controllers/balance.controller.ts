@@ -22,3 +22,39 @@ export const getHistory = async (req: AuthRequest, res: Response, next: NextFunc
     next(error);
   }
 };
+
+export const getDailyBonusStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const result = await balanceService.getDailyBonusStatus(req.user!.userId);
+    apiResponse.success(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const claimDailyBonus = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const result = await balanceService.claimDailyBonus(req.user!.userId);
+    apiResponse.success(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSpinStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const result = await balanceService.getSpinStatus(req.user!.userId);
+    apiResponse.success(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const spinLuckyWheel = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const result = await balanceService.spinLuckyWheel(req.user!.userId);
+    apiResponse.success(res, result);
+  } catch (error) {
+    next(error);
+  }
+};

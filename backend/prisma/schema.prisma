@@ -8,15 +8,18 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
-  username         String   @unique
+  id               String    @id @default(cuid())
+  email            String    @unique
+  username         String    @unique
   passwordHash     String
-  chipBalance      Int      @default(500)
-  lastWeeklyCredit DateTime @default(now())
-  avatarData       String?  @db.Text
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  chipBalance      Int       @default(500)
+  lastWeeklyCredit DateTime  @default(now())
+  loginStreak      Int       @default(0)
+  lastLoginDate    DateTime?
+  lastSpinDate     DateTime?
+  avatarData       String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   // Relations
   gameSessions      GameSessionParticipant[]

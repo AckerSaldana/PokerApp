@@ -30,6 +30,16 @@ export const getUserStats = async (req: Request<{ id: string }>, res: Response, 
   }
 };
 
+export const getProfitHistory = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 30;
+    const history = await userService.getProfitHistory(req.params.id, limit);
+    apiResponse.success(res, history);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     if (req.params.id !== req.user!.userId) {
