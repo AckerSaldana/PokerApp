@@ -109,7 +109,10 @@ export function ParticipantRow({
           {/* Cash Out button for host */}
           {showCashOutButton && onCashOut && (
             <button
-              onClick={onCashOut}
+              onClick={(e) => {
+                e.stopPropagation();
+                onCashOut();
+              }}
               className={cn(
                 'p-2 rounded-lg transition-colors',
                 'bg-amber-600/20 hover:bg-amber-600/40',
