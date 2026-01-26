@@ -8,6 +8,7 @@ import {
 } from '../utils/jwt';
 import { AppError } from '../middleware/error.middleware';
 import { RegisterInput, LoginInput } from '../validators/auth.validator';
+import { customizationService } from './customization.service';
 
 export class AuthService {
   async register(data: RegisterInput) {
@@ -43,6 +44,9 @@ export class AuthService {
         createdAt: true,
       },
     });
+
+    // Unlock default customization items for new user
+    await customizationService.unlockDefaultItems(user.id);
 
     const accessToken = generateAccessToken({ userId: user.id, email: user.email });
     const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
@@ -158,6 +162,21 @@ export class AuthService {
         chipBalance: true,
         lastWeeklyCredit: true,
         avatarData: true,
+        consecutiveWins: true,
+        maxWinStreak: true,
+        equippedFrameId: true,
+        equippedTitleId: true,
+        equippedFrame: {
+          select: {
+            cssClass: true,
+          },
+        },
+        equippedTitle: {
+          select: {
+            name: true,
+            color: true,
+          },
+        },
         createdAt: true,
       },
     });
@@ -166,7 +185,12 @@ export class AuthService {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    return user;
+    return {
+      ...user,
+      equippedFrameCss: user.equippedFrame?.cssClass || null,
+      equippedTitleName: user.equippedTitle?.name || null,
+      equippedTitleColor: user.equippedTitle?.color || null,
+    };
   }
 }
 

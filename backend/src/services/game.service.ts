@@ -453,11 +453,55 @@ export class GameService {
 
           const netResult = result.cashOut - participant.buyIn;
 
-          // Add cash-out to user balance
-          await tx.user.update({
+          // Fetch user's current win streak data
+          const user = await tx.user.findUnique({
             where: { id: result.userId },
-            data: { chipBalance: { increment: result.cashOut } },
+            select: { consecutiveWins: true, lastGameId: true, maxWinStreak: true },
           });
+
+          if (!user) continue;
+
+          // Win streak logic
+          if (netResult > 0) {
+            // Winner: check anti-abuse conditions
+            const isValidWin =
+              participants.length >= 2 &&
+              participant.buyIn >= 50 &&
+              user.lastGameId !== gameId;
+
+            if (isValidWin) {
+              const newStreak = user.consecutiveWins + 1;
+              const multiplier = 1.0 + Math.min(newStreak - 1, 10) * 0.1;
+              const bonusChips = Math.floor(netResult * (multiplier - 1.0));
+
+              // Add cash-out + streak bonus to user balance
+              await tx.user.update({
+                where: { id: result.userId },
+                data: {
+                  chipBalance: { increment: result.cashOut + bonusChips },
+                  consecutiveWins: newStreak,
+                  maxWinStreak: Math.max(newStreak, user.maxWinStreak),
+                  lastGameId: gameId,
+                },
+              });
+            } else {
+              // Invalid win (abuse prevention), just add cash-out
+              await tx.user.update({
+                where: { id: result.userId },
+                data: { chipBalance: { increment: result.cashOut } },
+              });
+            }
+          } else {
+            // Loser or break-even: reset streak, add cash-out
+            await tx.user.update({
+              where: { id: result.userId },
+              data: {
+                chipBalance: { increment: result.cashOut },
+                consecutiveWins: 0,
+                lastGameId: gameId,
+              },
+            });
+          }
 
           // Record results
           await tx.gameSessionParticipant.update({

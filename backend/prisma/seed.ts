@@ -332,6 +332,48 @@ const achievements = [
     icon: 'crown',
     sortOrder: 50,
   },
+
+  // Win streak achievements (consecutive game wins)
+  {
+    key: 'hot_hand',
+    name: 'Hot Hand',
+    description: 'Win 3 games in a row',
+    category: AchievementCategory.SPECIAL,
+    tier: AchievementTier.BRONZE,
+    threshold: 3,
+    icon: 'flame',
+    sortOrder: 51,
+  },
+  {
+    key: 'on_fire',
+    name: 'On Fire',
+    description: 'Win 5 games in a row',
+    category: AchievementCategory.SPECIAL,
+    tier: AchievementTier.SILVER,
+    threshold: 5,
+    icon: 'flame',
+    sortOrder: 52,
+  },
+  {
+    key: 'unstoppable',
+    name: 'Unstoppable',
+    description: 'Win 10 games in a row',
+    category: AchievementCategory.SPECIAL,
+    tier: AchievementTier.GOLD,
+    threshold: 10,
+    icon: 'zap',
+    sortOrder: 53,
+  },
+  {
+    key: 'legendary_streak',
+    name: 'Legendary Streak',
+    description: 'Win 15 games in a row',
+    category: AchievementCategory.SPECIAL,
+    tier: AchievementTier.PLATINUM,
+    threshold: 15,
+    icon: 'crown',
+    sortOrder: 54,
+  },
 ];
 
 async function main() {

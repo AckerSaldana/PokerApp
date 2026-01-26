@@ -8,6 +8,19 @@ export class LeaderboardService {
         username: true,
         avatarData: true,
         chipBalance: true,
+        equippedFrameId: true,
+        equippedTitleId: true,
+        equippedFrame: {
+          select: {
+            cssClass: true,
+          },
+        },
+        equippedTitle: {
+          select: {
+            name: true,
+            color: true,
+          },
+        },
         gameSessions: {
           select: {
             netResult: true,
@@ -34,6 +47,11 @@ export class LeaderboardService {
           username: user.username,
           avatarData: user.avatarData,
           chipBalance: user.chipBalance,
+          equippedFrameId: user.equippedFrameId,
+          equippedTitleId: user.equippedTitleId,
+          equippedFrameCss: user.equippedFrame?.cssClass || null,
+          equippedTitleName: user.equippedTitle?.name || null,
+          equippedTitleColor: user.equippedTitle?.color || null,
           ...stats,
           winRate: stats.gamesPlayed > 0 ? stats.wins / stats.gamesPlayed : 0,
         };
@@ -56,6 +74,19 @@ export class LeaderboardService {
         username: true,
         avatarData: true,
         chipBalance: true,
+        equippedFrameId: true,
+        equippedTitleId: true,
+        equippedFrame: {
+          select: {
+            cssClass: true,
+          },
+        },
+        equippedTitle: {
+          select: {
+            name: true,
+            color: true,
+          },
+        },
         gameSessions: {
           where: {
             gameSession: {
@@ -82,6 +113,11 @@ export class LeaderboardService {
           username: user.username,
           avatarData: user.avatarData,
           chipBalance: user.chipBalance,
+          equippedFrameId: user.equippedFrameId,
+          equippedTitleId: user.equippedTitleId,
+          equippedFrameCss: user.equippedFrame?.cssClass || null,
+          equippedTitleName: user.equippedTitle?.name || null,
+          equippedTitleColor: user.equippedTitle?.color || null,
           totalWinnings,
           gamesPlayed,
           wins: user.gameSessions.filter((s) => s.netResult > 0).length,
@@ -107,6 +143,19 @@ export class LeaderboardService {
         username: true,
         avatarData: true,
         chipBalance: true,
+        equippedFrameId: true,
+        equippedTitleId: true,
+        equippedFrame: {
+          select: {
+            cssClass: true,
+          },
+        },
+        equippedTitle: {
+          select: {
+            name: true,
+            color: true,
+          },
+        },
         gameSessions: {
           where: {
             gameSession: {
@@ -133,6 +182,11 @@ export class LeaderboardService {
           username: user.username,
           avatarData: user.avatarData,
           chipBalance: user.chipBalance,
+          equippedFrameId: user.equippedFrameId,
+          equippedTitleId: user.equippedTitleId,
+          equippedFrameCss: user.equippedFrame?.cssClass || null,
+          equippedTitleName: user.equippedTitle?.name || null,
+          equippedTitleColor: user.equippedTitle?.color || null,
           totalWinnings,
           gamesPlayed,
           wins: user.gameSessions.filter((s) => s.netResult > 0).length,

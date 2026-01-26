@@ -17,20 +17,33 @@ model User {
   loginStreak      Int       @default(0)
   lastLoginDate    DateTime?
   lastSpinDate     DateTime?
-  avatarData       String?   @db.Text
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  consecutiveWins  Int       @default(0)
+  lastGameId       String?
+  maxWinStreak     Int       @default(0)
+  equippedFrameId     String?
+  equippedTitleId     String?
+  avatarData          String?   @db.Text
+  lastLeaderboardRank Int?      // Track position for rivalry notifications
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   // Relations
-  gameSessions      GameSessionParticipant[]
-  hostedGames       GameSession[]            @relation("GameHost")
-  transfersSent     ChipTransfer[]           @relation("TransferSender")
-  transfersReceived ChipTransfer[]           @relation("TransferReceiver")
-  refreshTokens     RefreshToken[]
-  achievements      UserAchievement[]
+  gameSessions         GameSessionParticipant[]
+  hostedGames          GameSession[]            @relation("GameHost")
+  transfersSent        ChipTransfer[]           @relation("TransferSender")
+  transfersReceived    ChipTransfer[]           @relation("TransferReceiver")
+  refreshTokens        RefreshToken[]
+  achievements         UserAchievement[]
+  avatarFrames         UserAvatarFrame[]
+  profileTitles        UserProfileTitle[]
+  userEvents           UserEvent[]
+  notificationSettings NotificationSettings?
+  equippedFrame        AvatarFrame?             @relation("EquippedFrame", fields: [equippedFrameId], references: [id])
+  equippedTitle        ProfileTitle?            @relation("EquippedTitle", fields: [equippedTitleId], references: [id])
 
   @@index([username])
   @@index([chipBalance])
+  @@index([consecutiveWins])
 }
 
 model RefreshToken {
@@ -153,4 +166,160 @@ enum AchievementTier {
   SILVER
   GOLD
   PLATINUM
+}
+
+// Avatar Customization System
+model AvatarFrame {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  name        String
+  description String
+  rarity      FrameRarity
+  cssClass    String      // Tailwind classes for border
+  unlockType  UnlockType
+  requirement String      // Achievement key or milestone
+  sortOrder   Int
+
+  userFrames    UserAvatarFrame[]
+  equippedByUsers User[]          @relation("EquippedFrame")
+
+  @@index([rarity])
+}
+
+model ProfileTitle {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  name        String      // "High Roller", "Poker Legend"
+  description String
+  rarity      TitleRarity
+  color       String      // Gradient classes
+  unlockType  UnlockType
+  requirement String
+  sortOrder   Int
+
+  userTitles      UserProfileTitle[]
+  equippedByUsers User[]             @relation("EquippedTitle")
+
+  @@index([rarity])
+}
+
+model UserAvatarFrame {
+  id         String      @id @default(cuid())
+  userId     String
+  frameId    String
+  unlockedAt DateTime    @default(now())
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  frame AvatarFrame @relation(fields: [frameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, frameId])
+  @@index([userId])
+}
+
+model UserProfileTitle {
+  id         String       @id @default(cuid())
+  userId     String
+  titleId    String
+  unlockedAt DateTime     @default(now())
+
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title ProfileTitle @relation(fields: [titleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, titleId])
+  @@index([userId])
+}
+
+enum FrameRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum TitleRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum UnlockType {
+  DEFAULT
+  ACHIEVEMENT
+  MILESTONE
+  SPECIAL
+}
+
+// FOMO Events System
+model Event {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  name        String    // "Happy Hour"
+  description String
+  type        EventType
+
+  startTime   DateTime
+  endTime     DateTime
+  isActive    Boolean   @default(false)
+
+  multiplier  Float     @default(1.0) // 2.0 = 2x rewards
+  bonusChips  Int       @default(0)
+
+  iconEmoji   String    @default("🎉")
+  bannerColor String    @default("#d4af37")
+  priority    Int       @default(0)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  userEvents UserEvent[]
+
+  @@index([isActive])
+  @@index([startTime])
+  @@index([endTime])
+}
+
+enum EventType {
+  HAPPY_HOUR      // Scheduled (daily 6-7pm)
+  WEEKEND_BONANZA // Weekend specials
+  FLASH_BONUS     // Random 30-min bursts
+  MILESTONE_BOOST // Bonus for milestones
+}
+
+model UserEvent {
+  id             String   @id @default(cuid())
+  userId         String
+  eventId        String
+  participatedAt DateTime @default(now())
+  rewardsClaimed Int      @default(0)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+}
+
+model NotificationSettings {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+
+  eventReminders         Boolean  @default(true)
+  streakWarnings         Boolean  @default(true)
+  achievementProgress    Boolean  @default(true)
+  leaderboardUpdates     Boolean  @default(true)
+
+  quietHoursStart        Int?     // Hour 0-23
+  quietHoursEnd          Int?     // Hour 0-23
+
+  lastEventNotification  DateTime?
+  lastStreakNotification DateTime?
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

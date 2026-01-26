@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Flame, Gift, Check, Zap, Crown, Sparkles } from 'lucide-react';
 import { balanceApi } from '@/services/api/balance';
+import { eventsApi } from '@/services/api/events';
 import { cn } from '@/lib/utils';
 import { StreakDetailsModal } from './StreakDetailsModal';
 
@@ -58,6 +59,14 @@ export function DailyRewardCard() {
     staleTime: 30_000,
     refetchInterval: 60_000,
   });
+
+  const { data: activeEvents } = useQuery({
+    queryKey: ['activeEvents'],
+    queryFn: eventsApi.getActiveEvents,
+    refetchInterval: 60000, // Refresh every minute
+  });
+
+  const activeEvent = activeEvents?.[0]; // Highest priority event
 
   // Initialize previous streak when data loads
   useEffect(() => {
@@ -226,6 +235,23 @@ export function DailyRewardCard() {
                   </span>
                 </motion.div>
               ) : null}
+              {activeEvent && activeEvent.multiplier > 1 && (
+                <motion.div
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full animate-pulse"
+                  style={{
+                    backgroundColor: `${activeEvent.bannerColor}30`,
+                    borderWidth: '1px',
+                    borderColor: activeEvent.bannerColor,
+                  }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", bounce: 0.5, delay: 0.1 }}
+                >
+                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: activeEvent.bannerColor }}>
+                    {activeEvent.multiplier}x EVENT
+                  </span>
+                </motion.div>
+              )}
             </div>
             <p className="text-xs text-zinc-400">
               {data.canClaim

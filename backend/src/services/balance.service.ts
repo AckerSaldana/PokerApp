@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/error.middleware';
 import { achievementService } from './achievement.service';
+import { eventService } from './event.service';
 
 const WEEKLY_CHIP_BONUS = 100;
 const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
@@ -116,9 +117,13 @@ export class BalanceService {
           newStreak = 1;
         }
 
-        // Calculate bonus: base + streak bonus (capped)
+        // Calculate base bonus: base + streak bonus (capped)
         const streakBonus = Math.min(newStreak * DAILY_STREAK_BONUS, MAX_STREAK_BONUS);
-        const bonusAmount = DAILY_BASE_BONUS + streakBonus;
+        const baseBonus = DAILY_BASE_BONUS + streakBonus;
+
+        // Get active event multiplier
+        const eventMultiplier = await eventService.getActiveMultiplier(userId, 'daily');
+        const bonusAmount = Math.floor(baseBonus * eventMultiplier.multiplier) + eventMultiplier.bonusChips;
 
         const updated = await tx.user.update({
           where: { id: userId },
@@ -130,6 +135,12 @@ export class BalanceService {
           select: { chipBalance: true, loginStreak: true, lastLoginDate: true },
         });
 
+        // Record event participation if there was an active event
+        if (eventMultiplier.event && (eventMultiplier.multiplier > 1 || eventMultiplier.bonusChips > 0)) {
+          const eventBonus = bonusAmount - baseBonus;
+          await eventService.recordEventParticipation(userId, eventMultiplier.event.id, eventBonus);
+        }
+
         // Check for streak achievements after successful claim (non-blocking)
         achievementService.checkAndUnlockAchievements(userId).catch((error) => {
           console.error('Failed to check achievements after daily bonus:', error);
@@ -139,6 +150,10 @@ export class BalanceService {
           claimed: true,
           alreadyClaimed: false,
           bonusAmount,
+          baseBonus,
+          eventMultiplier: eventMultiplier.multiplier,
+          eventBonusChips: eventMultiplier.bonusChips,
+          activeEvent: eventMultiplier.event,
           currentStreak: updated.loginStreak,
           nextClaimAt: new Date(today.getTime() + DAY_IN_MS),
           balance: updated.chipBalance,
@@ -223,20 +238,24 @@ export class BalanceService {
 
         // Generate weighted random result
         const roll = Math.random();
-        let result: number;
+        let baseResult: number;
         if (roll < 0.40) {
           // 40%: 0-10 chips (common)
-          result = Math.floor(Math.random() * 11);
+          baseResult = Math.floor(Math.random() * 11);
         } else if (roll < 0.75) {
           // 35%: 11-25 chips (uncommon)
-          result = 11 + Math.floor(Math.random() * 15);
+          baseResult = 11 + Math.floor(Math.random() * 15);
         } else if (roll < 0.95) {
           // 20%: 26-50 chips (rare)
-          result = 26 + Math.floor(Math.random() * 25);
+          baseResult = 26 + Math.floor(Math.random() * 25);
         } else {
           // 5%: 51-100 chips (jackpot)
-          result = 51 + Math.floor(Math.random() * 50);
+          baseResult = 51 + Math.floor(Math.random() * 50);
         }
+
+        // Get active event multiplier
+        const eventMultiplier = await eventService.getActiveMultiplier(userId, 'spin');
+        const result = Math.floor(baseResult * eventMultiplier.multiplier) + eventMultiplier.bonusChips;
 
         const updated = await tx.user.update({
           where: { id: userId },
@@ -247,9 +266,19 @@ export class BalanceService {
           select: { chipBalance: true },
         });
 
+        // Record event participation if there was an active event
+        if (eventMultiplier.event && (eventMultiplier.multiplier > 1 || eventMultiplier.bonusChips > 0)) {
+          const eventBonus = result - baseResult;
+          await eventService.recordEventParticipation(userId, eventMultiplier.event.id, eventBonus);
+        }
+
         return {
           canSpin: true,
           result,
+          baseResult,
+          eventMultiplier: eventMultiplier.multiplier,
+          eventBonusChips: eventMultiplier.bonusChips,
+          activeEvent: eventMultiplier.event,
           balance: updated.chipBalance,
           nextSpinAt: new Date(today.getTime() + DAY_IN_MS),
         };

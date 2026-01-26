@@ -43,6 +43,19 @@ export class UserService {
         chipBalance: true,
         avatarData: true,
         createdAt: true,
+        equippedFrameId: true,
+        equippedTitleId: true,
+        equippedFrame: {
+          select: {
+            cssClass: true,
+          },
+        },
+        equippedTitle: {
+          select: {
+            name: true,
+            color: true,
+          },
+        },
         gameSessions: {
           select: {
             netResult: true,
@@ -103,6 +116,11 @@ export class UserService {
         chipBalance: user.chipBalance,
         avatarData: user.avatarData,
         createdAt: user.createdAt,
+        equippedFrameId: user.equippedFrameId,
+        equippedTitleId: user.equippedTitleId,
+        equippedFrameCss: user.equippedFrame?.cssClass || null,
+        equippedTitleName: user.equippedTitle?.name || null,
+        equippedTitleColor: user.equippedTitle?.color || null,
       },
       gameStats: {
         ...gameStats,

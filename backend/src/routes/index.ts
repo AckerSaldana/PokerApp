@@ -6,6 +6,8 @@ import leaderboardRoutes from './leaderboard.routes';
 import gameRoutes from './game.routes';
 import userRoutes from './user.routes';
 import achievementRoutes from './achievement.routes';
+import customizationRoutes from './customization.routes';
+import eventRoutes from './event.routes';
 
 const router = Router();
 
@@ -16,5 +18,7 @@ router.use('/leaderboard', leaderboardRoutes);
 router.use('/games', gameRoutes);
 router.use('/users', userRoutes);
 router.use('/achievements', achievementRoutes);
+router.use('/customization', customizationRoutes);
+router.use('/events', eventRoutes);
 
 export default router;

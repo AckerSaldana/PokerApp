@@ -4,8 +4,10 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { ChipBalanceCard } from '../components/ChipBalanceCard';
 import { QuickStats } from '../components/QuickStats';
 import { DailyRewardCard } from '../components/DailyRewardCard';
+import { WinStreakCard } from '../components/WinStreakCard';
 import { LuckySpinButton } from '../components/LuckySpinButton';
 import { ProfitChart } from '../components/ProfitChart';
+import { EventBanner } from '@/features/events/components/EventBanner';
 import { pageTransition } from '@/components/animations/variants';
 import { Skeleton } from '@/components/ui/Skeleton';
 
@@ -36,6 +38,9 @@ export function DashboardPage() {
       )}
 
       <div className="px-6 space-y-6">
+        {/* Active Event Banner */}
+        <EventBanner />
+
         {/* Balance */}
         <ChipBalanceCard />
 
@@ -48,6 +53,7 @@ export function DashboardPage() {
         {/* Performance Section */}
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-widest pl-1">Performance</h2>
+          <WinStreakCard />
           <ProfitChart />
           <QuickStats />
         </div>

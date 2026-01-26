@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { AchievementCategory } from '@prisma/client';
+import { customizationService } from './customization.service';
 
 interface UserProgress {
   totalGames: number;
@@ -10,6 +11,7 @@ interface UserProgress {
   transferVolume: number;
   gamesHosted: number;
   loginStreak: number;
+  consecutiveWins: number;
 }
 
 export class AchievementService {
@@ -133,6 +135,11 @@ export class AchievementService {
       }
     }
 
+    // Also unlock any frames/titles associated with these achievements
+    if (newUnlocks.length > 0) {
+      await customizationService.checkAndUnlockItems(userId, newUnlocks);
+    }
+
     return newUnlocks;
   }
 
@@ -166,6 +173,11 @@ export class AchievementService {
       }
     }
 
+    // Also unlock any frames/titles associated with these achievements
+    if (newUnlocks.length > 0) {
+      await customizationService.checkAndUnlockItems(userId, newUnlocks);
+    }
+
     return newUnlocks;
   }
 
@@ -174,6 +186,7 @@ export class AchievementService {
       where: { id: userId },
       select: {
         loginStreak: true,
+        consecutiveWins: true,
         gameSessions: {
           select: { netResult: true },
         },
@@ -196,6 +209,7 @@ export class AchievementService {
         transferVolume: 0,
         gamesHosted: 0,
         loginStreak: 0,
+        consecutiveWins: 0,
       };
     }
 
@@ -215,6 +229,7 @@ export class AchievementService {
       transferVolume,
       gamesHosted: user.hostedGames.length,
       loginStreak: user.loginStreak,
+      consecutiveWins: user.consecutiveWins,
     };
   }
 
@@ -258,7 +273,7 @@ export class AchievementService {
       case 'host_25':
         return progress.gamesHosted;
 
-      // Streak achievements
+      // Streak achievements (login)
       case 'streak_3':
       case 'streak_7':
       case 'streak_14':
@@ -271,6 +286,13 @@ export class AchievementService {
       case 'streak_500':
       case 'streak_1000':
         return progress.loginStreak;
+
+      // Win streak achievements (consecutive game wins)
+      case 'hot_hand':
+      case 'on_fire':
+      case 'unstoppable':
+      case 'legendary_streak':
+        return progress.consecutiveWins;
 
       default:
         return 0;

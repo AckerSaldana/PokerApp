@@ -5,6 +5,13 @@ export interface User {
   chipBalance: number;
   avatarData?: string | null;
   lastWeeklyCredit?: string;
+  consecutiveWins?: number;
+  maxWinStreak?: number;
+  equippedFrameId?: string | null;
+  equippedTitleId?: string | null;
+  equippedFrameCss?: string | null;
+  equippedTitleName?: string | null;
+  equippedTitleColor?: string | null;
   createdAt: string;
 }
 
@@ -23,6 +30,11 @@ export interface LeaderboardEntry {
   gamesPlayed: number;
   wins?: number;
   winRate: number;
+  equippedFrameId?: string | null;
+  equippedTitleId?: string | null;
+  equippedFrameCss?: string | null;
+  equippedTitleName?: string | null;
+  equippedTitleColor?: string | null;
 }
 
 export interface Transfer {
