@@ -185,6 +185,8 @@ export function StreakDetailsModal({
         initial="hidden"
         animate="visible"
         className="space-y-6"
+        onPointerDownCapture={(e) => e.stopPropagation()}
+        style={{ touchAction: 'pan-y' }}
       >
             {/* Header */}
             <motion.div variants={itemVariants} className="flex items-center justify-between">
@@ -317,14 +319,17 @@ export function StreakDetailsModal({
                 </div>
               </motion.div>
             ) : (
-              <motion.div variants={itemVariants}>
+              <motion.div
+                variants={itemVariants}
+                onPointerDownCapture={(e) => e.stopPropagation()}
+              >
                 <h3 className={cn(
                   "text-sm font-semibold uppercase tracking-wider mb-3",
                   isLegendary ? "text-[#ffd700]/70" : "text-zinc-400"
                 )}>
                   Milestones
                 </h3>
-                <div className="relative">
+                <div className="relative" style={{ touchAction: 'pan-y' }}>
                   {/* Timeline line */}
                   <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-white/10" />
 
@@ -342,7 +347,7 @@ export function StreakDetailsModal({
                   />
 
                   {/* Milestone items */}
-                  <div className="space-y-4 relative max-h-[400px] overflow-y-auto pr-2">
+                  <div className="space-y-4 relative">
                     {MILESTONES.map((milestone) => (
                       <MilestoneItem
                         key={milestone.days}
