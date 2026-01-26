@@ -46,16 +46,6 @@ function getMilestoneProgress(currentStreak: number): number {
   return Math.round(((currentStreak - prev) / (next - prev)) * 100);
 }
 
-function getTierColor(tier: string): string {
-  switch (tier) {
-    case 'BRONZE': return 'text-amber-600';
-    case 'SILVER': return 'text-zinc-400';
-    case 'GOLD': return 'text-[#f4d03f]';
-    case 'PLATINUM': return 'text-cyan-400';
-    default: return 'text-white';
-  }
-}
-
 function formatRelativeTime(dateString: string): string {
   const target = new Date(dateString);
   const now = new Date();
@@ -73,10 +63,9 @@ function formatRelativeTime(dateString: string): string {
 interface MilestoneItemProps {
   milestone: typeof MILESTONES[0];
   currentStreak: number;
-  isLast: boolean;
 }
 
-function MilestoneItem({ milestone, currentStreak, isLast }: MilestoneItemProps) {
+function MilestoneItem({ milestone, currentStreak }: MilestoneItemProps) {
   const isReached = currentStreak >= milestone.days;
   const isCurrent = getNextMilestone(currentStreak) === milestone.days;
   const Icon = milestone.icon === 'flame' ? Flame : milestone.icon === 'crown' ? Crown : Zap;
@@ -354,12 +343,11 @@ export function StreakDetailsModal({
 
                   {/* Milestone items */}
                   <div className="space-y-4 relative max-h-[400px] overflow-y-auto pr-2">
-                    {MILESTONES.map((milestone, index) => (
+                    {MILESTONES.map((milestone) => (
                       <MilestoneItem
                         key={milestone.days}
                         milestone={milestone}
                         currentStreak={currentStreak}
-                        isLast={index === MILESTONES.length - 1}
                       />
                     ))}
                   </div>

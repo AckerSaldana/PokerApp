@@ -139,15 +139,6 @@ export function LuckySpinModal({ isOpen, onClose, canSpin }: LuckySpinModalProps
 
   if (!isOpen) return null;
 
-  // Calculate reel display values
-  const reelValues = result !== null
-    ? [
-        Math.floor(result / 100) % 10 * 10,
-        Math.floor(result / 10) % 10 * 10,
-        result % 100,
-      ]
-    : [0, 0, 0];
-
   return createPortal(
     <AnimatePresence>
       <motion.div
