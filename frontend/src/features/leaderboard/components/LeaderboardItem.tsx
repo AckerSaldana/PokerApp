@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { Avatar } from '@/components/ui/Avatar';
+import { FramedAvatar } from '@/components/ui/FramedAvatar';
+import { TitleBadge } from '@/components/ui/TitleBadge';
 import { formatChips } from '@/lib/utils';
 import type { LeaderboardEntry } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -16,7 +17,7 @@ export function LeaderboardItem({ player, onPlayerTap }: LeaderboardItemProps) {
   return (
     <motion.div
       className={cn(
-        'relative flex items-center gap-4 p-4',
+        'relative flex items-center gap-4 p-4 min-h-[88px]',
         'bg-white/5 rounded-xl',
         'border border-white/10',
         'transition-colors duration-200',
@@ -40,15 +41,28 @@ export function LeaderboardItem({ player, onPlayerTap }: LeaderboardItemProps) {
       </div>
 
       {/* Avatar */}
-      <Avatar
+      <FramedAvatar
         src={player.avatarData || undefined}
         name={player.username}
         size="md"
+        frameClass={player.equippedFrameCss || undefined}
       />
 
       {/* Player info */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
         <p className="font-semibold text-white truncate">{player.username}</p>
+        {/* Always reserve space for title to maintain consistent height */}
+        <div className="h-5 flex items-center">
+          {player.equippedTitleName ? (
+            <TitleBadge
+              title={player.equippedTitleName}
+              color={player.equippedTitleColor || 'text-zinc-400'}
+              size="sm"
+            />
+          ) : (
+            <div className="h-5" />
+          )}
+        </div>
         <p className="text-sm text-zinc-500">
           {player.gamesPlayed} games · {Math.round(player.winRate * 100)}% wins
         </p>

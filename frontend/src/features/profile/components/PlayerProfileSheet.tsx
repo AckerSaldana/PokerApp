@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { CalendarDays } from 'lucide-react';
 import { Sheet } from '@/components/ui/Sheet';
-import { Avatar } from '@/components/ui/Avatar';
+import { FramedAvatar } from '@/components/ui/FramedAvatar';
+import { TitleBadge } from '@/components/ui/TitleBadge';
 import { SkeletonListItem } from '@/components/ui/Skeleton';
 import { usersApi } from '@/services/api/users';
 import { transferApi } from '@/services/api/transfer';
@@ -43,16 +44,26 @@ export function PlayerProfileSheet({ isOpen, onClose, playerId, playerName }: Pl
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Avatar
+          <FramedAvatar
             src={user?.avatarData || undefined}
             name={user?.username || playerName || 'Player'}
             size="xl"
+            frameClass={user?.equippedFrameCss || undefined}
             className="w-16 h-16 text-xl"
           />
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 space-y-1">
             <h2 className="text-xl font-bold text-white truncate">
               {user?.username || playerName || 'Loading...'}
             </h2>
+            {user?.equippedTitleName && (
+              <div>
+                <TitleBadge
+                  title={user.equippedTitleName}
+                  color={user.equippedTitleColor || 'text-zinc-400'}
+                  size="sm"
+                />
+              </div>
+            )}
             {user && (
               <>
                 <p className="text-zinc-400 text-sm">{user.email}</p>

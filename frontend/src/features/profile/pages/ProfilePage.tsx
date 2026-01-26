@@ -1,22 +1,25 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { LogOut, TrendingUp, TrendingDown, Gamepad2, Send, Download, CalendarDays, Pencil } from 'lucide-react';
+import { LogOut, TrendingUp, TrendingDown, Gamepad2, Send, Download, CalendarDays, Pencil, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Avatar } from '@/components/ui/Avatar';
+import { FramedAvatar } from '@/components/ui/FramedAvatar';
+import { TitleBadge } from '@/components/ui/TitleBadge';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { usersApi } from '@/services/api/users';
 import { formatChips, formatDate, cn } from '@/lib/utils';
 import { pageTransition } from '@/components/animations/variants';
 import { EditProfileSheet } from '../components/EditProfileSheet';
+import { CustomizationSheet } from '@/features/customization/components/CustomizationSheet';
 import { ProfileAchievementsBadges } from '@/features/achievements/components/ProfileAchievementsBadges';
 
 export function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const [showEditSheet, setShowEditSheet] = useState(false);
+  const [showCustomizationSheet, setShowCustomizationSheet] = useState(false);
 
   const { data: stats } = useQuery({
     queryKey: ['userStats', user?.id],
@@ -100,10 +103,11 @@ export function ProfilePage() {
         >
           <div className="flex items-center gap-5">
             <div className="relative">
-              <Avatar
+              <FramedAvatar
                 src={user?.avatarData || undefined}
                 name={user?.username || 'U'}
                 size="xl"
+                frameClass={user?.equippedFrameCss || undefined}
                 className="w-16 h-16 text-xl"
               />
               <button
@@ -114,8 +118,17 @@ export function ProfilePage() {
               </button>
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 space-y-1">
               <h2 className="text-xl font-bold text-white">{user?.username}</h2>
+              {user?.equippedTitleName && (
+                <div>
+                  <TitleBadge
+                    title={user.equippedTitleName}
+                    color={user.equippedTitleColor || 'text-zinc-400'}
+                    size="sm"
+                  />
+                </div>
+              )}
               <p className="text-zinc-400 text-sm">{user?.email}</p>
               <div className="flex items-center gap-2 mt-1.5">
                 <CalendarDays className="w-3.5 h-3.5 text-zinc-500" />
@@ -125,6 +138,15 @@ export function ProfilePage() {
               </div>
             </div>
           </div>
+
+          {/* Customize Button */}
+          <button
+            onClick={() => setShowCustomizationSheet(true)}
+            className="mt-4 w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-black font-semibold hover:shadow-lg hover:shadow-[#d4af37]/20 transition-all"
+          >
+            <Sparkles className="w-5 h-5" />
+            Customize Appearance
+          </button>
         </motion.div>
 
         {/* Game Stats */}
@@ -220,6 +242,12 @@ export function ProfilePage() {
           user={user}
         />
       )}
+
+      {/* Customization Sheet */}
+      <CustomizationSheet
+        isOpen={showCustomizationSheet}
+        onClose={() => setShowCustomizationSheet(false)}
+      />
     </motion.div>
   );
 }
