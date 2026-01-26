@@ -62,8 +62,8 @@ function SlotReel({
   }, [isSpinning, finalValue, delay]);
 
   return (
-    <div className="relative w-20 h-24 bg-black/40 rounded-xl border-2 border-white/20 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-white/5" />
+    <div className="relative w-20 h-24 bg-black/90 rounded-xl border border-[#d4af37]/40 overflow-hidden shadow-inner">
+      <div className="absolute inset-0 border border-black/20 rounded-xl" />
 
       <motion.div
         className="flex items-center justify-center h-full"
@@ -71,8 +71,8 @@ function SlotReel({
         transition={{ duration: 0.1, repeat: spinning ? Infinity : 0 }}
       >
         <span className={cn(
-          "text-3xl font-bold transition-all",
-          spinning ? "text-white/60 blur-[1px]" : "text-white"
+          "text-3xl font-bold transition-all tabular-nums",
+          spinning ? "text-[#d4af37]/40 blur-[1px]" : "text-[#f4d03f]"
         )}>
           {displayValue}
         </span>
@@ -81,10 +81,10 @@ function SlotReel({
       {/* Shine effect */}
       {!spinning && (
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent -skew-x-12"
           initial={{ x: '-100%' }}
           animate={{ x: '200%' }}
-          transition={{ duration: 0.8, delay: delay / 1000 + 0.2 }}
+          transition={{ duration: 1.2, delay: delay / 1000 + 0.3, ease: "easeOut" }}
         />
       )}
     </div>
@@ -158,7 +158,7 @@ export function LuckySpinModal({ isOpen, onClose, canSpin }: LuckySpinModalProps
         onClick={handleClose}
       >
         <motion.div
-          className="relative w-full max-w-sm bg-gradient-to-b from-purple-900/90 to-pink-900/90 rounded-3xl border border-white/20 p-6 overflow-hidden"
+          className="relative w-full max-w-sm bg-[#0a0a0a]/95 backdrop-blur-xl rounded-3xl border border-[#d4af37]/30 p-8 overflow-hidden shadow-2xl"
           initial={{ scale: 0.9, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, y: 20 }}
@@ -168,15 +168,15 @@ export function LuckySpinModal({ isOpen, onClose, canSpin }: LuckySpinModalProps
           <button
             onClick={handleClose}
             disabled={isSpinning}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50"
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-[#d4af37]/20 border border-white/10 hover:border-[#d4af37]/40 transition-all disabled:opacity-50"
           >
             <X className="w-5 h-5 text-white" />
           </button>
 
           {/* Title */}
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white mb-1">Lucky Spin</h2>
-            <p className="text-purple-200/60 text-sm">Try your luck for free chips!</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Lucky Spin</h2>
+            <p className="text-zinc-400 text-sm">Try your luck for free chips</p>
           </div>
 
           {/* Slot Machine */}
@@ -206,21 +206,12 @@ export function LuckySpinModal({ isOpen, onClose, canSpin }: LuckySpinModalProps
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
               >
-                <motion.div
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500"
-                  animate={{
-                    boxShadow: [
-                      '0 0 20px rgba(251, 191, 36, 0.3)',
-                      '0 0 40px rgba(251, 191, 36, 0.5)',
-                      '0 0 20px rgba(251, 191, 36, 0.3)',
-                    ]
-                  }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <Sparkles className="w-5 h-5 text-white" />
-                  <span className="text-2xl font-bold text-white">+{result} chips!</span>
-                </motion.div>
+                <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-black/90 border border-[#d4af37] shadow-lg shadow-[#d4af37]/20">
+                  <Sparkles className="w-5 h-5 text-[#f4d03f]" />
+                  <span className="text-2xl font-bold text-[#f4d03f]">+{result} chips</span>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -230,12 +221,12 @@ export function LuckySpinModal({ isOpen, onClose, canSpin }: LuckySpinModalProps
             onClick={handleSpin}
             disabled={!canSpin || isSpinning || showResult}
             className={cn(
-              "w-full py-4 rounded-xl font-bold text-lg transition-all",
+              "w-full py-4 rounded-xl font-bold text-lg transition-all border",
               canSpin && !showResult
-                ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30"
-                : "bg-white/10 text-zinc-400 cursor-not-allowed"
+                ? "bg-[#d4af37] text-black border-[#f4d03f] shadow-lg shadow-[#d4af37]/20 hover:bg-[#f4d03f]"
+                : "bg-white/5 text-zinc-500 border-white/10 cursor-not-allowed"
             )}
-            whileHover={canSpin && !isSpinning && !showResult ? { scale: 1.02 } : {}}
+            whileHover={canSpin && !isSpinning && !showResult ? { scale: 1.01 } : {}}
             whileTap={canSpin && !isSpinning && !showResult ? { scale: 0.98 } : {}}
           >
             {isSpinning ? 'Spinning...' : showResult ? 'Done!' : 'SPIN'}
@@ -243,21 +234,21 @@ export function LuckySpinModal({ isOpen, onClose, canSpin }: LuckySpinModalProps
 
           {/* Prize tiers */}
           <div className="mt-6 grid grid-cols-4 gap-2 text-center text-xs">
-            <div className="bg-white/5 rounded-lg py-2">
+            <div className="bg-white/5 rounded-lg py-2 border border-white/10">
               <p className="text-zinc-400">Common</p>
               <p className="text-white font-medium">0-10</p>
             </div>
-            <div className="bg-white/5 rounded-lg py-2">
-              <p className="text-zinc-400">Uncommon</p>
+            <div className="bg-white/5 rounded-lg py-2 border border-[#d4af37]/20">
+              <p className="text-zinc-300">Uncommon</p>
               <p className="text-white font-medium">11-25</p>
             </div>
-            <div className="bg-white/5 rounded-lg py-2">
-              <p className="text-amber-400">Rare</p>
-              <p className="text-white font-medium">26-50</p>
+            <div className="bg-white/5 rounded-lg py-2 border border-[#d4af37]/40">
+              <p className="text-[#d4af37]">Rare</p>
+              <p className="text-[#f4d03f] font-medium">26-50</p>
             </div>
-            <div className="bg-white/5 rounded-lg py-2">
-              <p className="text-purple-400">Jackpot</p>
-              <p className="text-white font-medium">51-100</p>
+            <div className="bg-[#d4af37]/10 rounded-lg py-2 border border-[#d4af37]">
+              <p className="text-[#f4d03f]">Jackpot</p>
+              <p className="text-[#f4d03f] font-bold">51-100</p>
             </div>
           </div>
         </motion.div>

@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { AppError } from '../middleware/error.middleware';
+import { achievementService } from './achievement.service';
 
 const WEEKLY_CHIP_BONUS = 100;
 const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
@@ -127,6 +128,11 @@ export class BalanceService {
             lastLoginDate: now,
           },
           select: { chipBalance: true, loginStreak: true, lastLoginDate: true },
+        });
+
+        // Check for streak achievements after successful claim (non-blocking)
+        achievementService.checkAndUnlockAchievements(userId).catch((error) => {
+          console.error('Failed to check achievements after daily bonus:', error);
         });
 
         return {

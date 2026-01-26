@@ -68,7 +68,7 @@
 /* Fonts */
 :root {
   --font-display: "Playfair Display", serif;
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "futura-100", "Inter", system-ui, -apple-system, sans-serif;
 }
 
 /* Base styles */
@@ -82,6 +82,7 @@ html {
 
 body {
   font-family:
+    "futura-100",
     "Inter",
     system-ui,
     -apple-system,

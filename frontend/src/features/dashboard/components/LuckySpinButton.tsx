@@ -48,7 +48,7 @@ export function LuckySpinButton() {
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/20 p-4 h-16 animate-pulse" />
+      <div className="rounded-2xl bg-black/40 border border-[#d4af37]/20 p-4 h-16 animate-pulse" />
     );
   }
 
@@ -61,7 +61,7 @@ export function LuckySpinButton() {
         className={cn(
           "w-full relative overflow-hidden rounded-2xl p-4 border transition-all",
           data.canSpin
-            ? "bg-gradient-to-r from-purple-900/50 to-pink-900/50 border-purple-500/40"
+            ? "bg-black/60 border-[#d4af37]/40"
             : "bg-white/5 border-white/10"
         )}
         whileHover={{ scale: 1.01 }}
@@ -70,8 +70,8 @@ export function LuckySpinButton() {
         {/* Glow when available */}
         {data.canSpin && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20"
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
+            className="absolute inset-0 bg-[#d4af37]/10"
+            animate={{ opacity: [0.2, 0.4, 0.2] }}
             transition={{ duration: 2, repeat: Infinity }}
           />
         )}
@@ -81,12 +81,12 @@ export function LuckySpinButton() {
             <div className={cn(
               "w-10 h-10 rounded-xl flex items-center justify-center",
               data.canSpin
-                ? "bg-gradient-to-br from-purple-500 to-pink-500"
+                ? "bg-[#d4af37]"
                 : "bg-white/10"
             )}>
               <Dices className={cn(
                 "w-5 h-5",
-                data.canSpin ? "text-white" : "text-zinc-400"
+                data.canSpin ? "text-black" : "text-zinc-400"
               )} />
             </div>
             <div className="text-left">
@@ -105,7 +105,7 @@ export function LuckySpinButton() {
           <div className={cn(
             "px-4 py-2 rounded-lg font-semibold text-sm",
             data.canSpin
-              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+              ? "bg-[#d4af37] text-black"
               : "bg-white/5 text-zinc-500"
           )}>
             {data.canSpin ? 'SPIN!' : 'Wait'}

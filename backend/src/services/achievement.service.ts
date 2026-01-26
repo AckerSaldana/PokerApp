@@ -9,6 +9,7 @@ interface UserProgress {
   transfersSent: number;
   transferVolume: number;
   gamesHosted: number;
+  loginStreak: number;
 }
 
 export class AchievementService {
@@ -171,7 +172,8 @@ export class AchievementService {
   private async calculateUserProgress(userId: string): Promise<UserProgress> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
+      select: {
+        loginStreak: true,
         gameSessions: {
           select: { netResult: true },
         },
@@ -193,6 +195,7 @@ export class AchievementService {
         transfersSent: 0,
         transferVolume: 0,
         gamesHosted: 0,
+        loginStreak: 0,
       };
     }
 
@@ -211,6 +214,7 @@ export class AchievementService {
       transfersSent: user.transfersSent.length,
       transferVolume,
       gamesHosted: user.hostedGames.length,
+      loginStreak: user.loginStreak,
     };
   }
 
@@ -253,6 +257,20 @@ export class AchievementService {
       case 'host_10':
       case 'host_25':
         return progress.gamesHosted;
+
+      // Streak achievements
+      case 'streak_3':
+      case 'streak_7':
+      case 'streak_14':
+      case 'streak_30':
+      case 'streak_60':
+      case 'streak_100':
+      case 'streak_150':
+      case 'streak_200':
+      case 'streak_365':
+      case 'streak_500':
+      case 'streak_1000':
+        return progress.loginStreak;
 
       default:
         return 0;
